@@ -35,12 +35,12 @@ class SmartKeys{
       key = key.replace(/(\*|\+|\!|\|)/g, (a) => {
         return `\\${a}`
       })
-      let reg = new RegExp(`(?<!([A-Z]|[a-z]))(${key})(?!([A-Z]|[a-z]|\\*))`, 'g');
-      str = str.replace(reg, (a) => {
+      let reg = new RegExp(`( |^)(${key})(?!([A-Z]|[a-z]|\\*))`, 'g');
+      str = str.replace(reg, (a,b,c) => {
         if (replace instanceof Function){
-          return replace(a)
+          return replace(c)
         }else if(typeof replace === 'string'){
-          return replace.replace(/\$&/g, a).replace(/{desc}/g, val);
+          return replace.replace(/\$&/g, c).replace(/{desc}/g, val);
         }
       })
     });

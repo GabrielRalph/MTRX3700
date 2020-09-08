@@ -204,7 +204,7 @@
 
         let height = parseInt(this.el.children[0].clientHeight);
         let last_bottom = parseInt(this.el.children[0].style.bottom) - 10;
-        let bottom = 5-height;
+        let bottom = -height+10;
         let dec = 10;
 
         let animate = () => {
