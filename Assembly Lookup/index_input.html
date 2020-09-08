@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MCU Instruction Sey</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script type="text/javascript" src="./keys.js"></script>
+  <script type="text/javascript" src="./AssemblyInstructions.js"></script>
+
+  <body>
+    <div id = "page">
+      <div v-for = "(itn_cat, cat_name) in instructions">
+        <h1>{{cat_name}}</h1>
+        <table>
+          <tr v-for = "(itn, name) in itn_cat">
+            <td>
+              {{itn.Hex}}
+            </td>
+            <td v-html = "f(itn.Mnemonic)">
+            </td>
+            <td v-html = "f(itn.Description)">
+            </td>
+            <td v-html = "f2(f(itn.Function))">
+            </td>
+            <!-- <td>
+              <div class = "btn" @click = "remove(cat_name, name)">
+                -
+              </div>
+            </td> -->
+          </tr>
+          <!-- <tr>
+            <td>
+              <input v-model = "itn.Hex" type = "text" style = "width: 50px"/>
+            </td>
+            <td>
+              <input v-model = "itn.Mnemonic" @input = "setMnemonic" style = "width: 150px" type = "text" />
+            </td>
+            <td>
+              <input v-model = "itn.Description" type = "text" style = "width: 250px"/>
+            </td>
+            <td>
+              <input v-model = "itn.Function" @input = "arrowFriend" type = "text" />
+            </td>
+            <td>
+              <div class = "btn" @click = "add(cat_name)">
+                +
+              </div>
+            </td>
+          </tr> -->
+        </table>
+      </div>
+    </div>
+  </body>
+  <script type = "text/javascript">
+
+    let page = new Vue({
+      el: '#page',
+      data: function(){
+        return{
+          name: "",
+          itn: {
+            Hex: "",
+            Mnemonic: "",
+            Description: "",
+            Function: ""
+          },
+          itnset: ITNS,
+          keys: new SmartKeys(ASSEMBLY.PIC18MCU.Keys),
+        }
+      },
+      methods: {
+        setMnemonic: function(e){
+          this.name = e.target.value.split(' ')[0];
+        },
+        arrowFriend: function(e){
+          this.itn.Function = e.target.value.replace('-->', '→');
+        },
+        log: function(e){
+          console.log(e);
+        },
+        add: function(cat){
+          this.itnset[cat][this.name] = {
+            Hex: this.itn.Hex,
+            Mnemonic: this.itn.Mnemonic,
+            Description: this.itn.Description,
+            Function: this.itn.Function,
+          }
+          this.itn.Hex = ""
+          this.itn.Mnemonic = ""
+          this.itn.Description = ""
+          this.itn.Function = ""
+          this.name = ""
+          this.$forceUpdate()
+        },
+        f: function(str){
+          return this.keys.replaceKeys(str, '<i>$&</i>');
+        },
+        f2: function(str){
+          return str.replace(/(,|:) /g, (a, b, c) => {return `${a}<br />`})
+        },
+        remove(cat_name, name){
+          delete this.itnset[cat_name][name]
+          this.$forceUpdate()
+        },
+      },
+      computed: {
+        instructions: function(){
+          return this.itnset
+        }
+      },
+      created(){
+      }
+    })
+    let print = function(){
+      console.log(JSON.stringify(page.itnset));
+    }
+  </script>
+  <style type = "text/css">
+  i{
+    font-style: normal;
+    font-family: monospace;
+    cursor: pointer;
+    padding: 5px;
+    margin-right: 4px;
+    background: #ffbe2c20;
+    border-radius: 20px;
+  }
+  .btn{
+    --size: 30px;
+    line-height: var(--size);
+    min-width: var(--size);
+    border-radius: calc(var(--size)/2);
+    font-size: calc(var(--size)*0.7);
+    background: tomato;
+    color: white;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+    margin: 10px;
+  }
+  table{
+    border-collapse: collapse;
+  }
+  table td{
+    vertical-align: center;
+    padding: 10px;
+    border: 2px solid red;
+  }
+  </style>
+
+</html>

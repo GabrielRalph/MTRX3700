@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MCU Instruction Sey</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script type="text/javascript" src="./keys.js"></script>
+  <script type="text/javascript" src="./AssemblyInstructions.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,271;0,335;1,382;1,409&display=swap" rel="stylesheet">
+  <body>
+    <div id = "page">
+      <div >
+        <table>
+          <thead>
+            <tr>
+              <th width = "100px">
+                <h1>Hex</h1>
+                <div class = "search">
+                  <svg height = "1em" width = "1em" viewBox = "0 0 10 10">
+                    <path d = "M5.62,5.62L9,9" stroke-linecap = "round"></path>
+                    <ellipse cx = "3.5" cy = "3.5" rx = "3" ry = "3"></ellipse>
+                  </svg>
+                  <input type = "text" v-model = "search.Hex"/>
+                </div>
+              </th>
+              <th>
+                <h1>Mnemonic</h1>
+                <div class = "search">
+                  <svg height = "1em" width = "1em" viewBox = "0 0 10 10">
+                    <path d = "M5.62,5.62L9,9" stroke-linecap = "round"></path>
+                    <ellipse cx = "3.5" cy = "3.5" rx = "3" ry = "3"></ellipse>
+                  </svg>
+                  <input type = "text" v-model = "search.Mnemonic"/>
+                </div>
+              </th>
+              <th>
+              </th>
+              <th>
+                <h1>Description</h1>
+                <div class = "search">
+                  <svg height = "1em" width = "1em" viewBox = "0 0 10 10">
+                    <path d = "M5.62,5.62L9,9" stroke-linecap = "round"></path>
+                    <ellipse cx = "3.5" cy = "3.5" rx = "3" ry = "3"></ellipse>
+                  </svg>
+                  <input type = "text" v-model = "search.Description"/>
+                </div>
+              </th>
+              <th>
+                <h1>Function</h1>
+                <div class = "search">
+                  <svg height = "1em" width = "1em" viewBox = "0 0 10 10">
+                    <path d = "M5.62,5.62L9,9" stroke-linecap = "round"></path>
+                    <ellipse cx = "3.5" cy = "3.5" rx = "3" ry = "3"></ellipse>
+                  </svg>
+                  <input type = "text" v-model = "search.Function"/>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for = "(itn_cat, cat_name) in instructions">
+              <tr :style = "`--bgc1: hsl(${colors.Hex}, 40%, 40%)`">
+                <th colspan = "5">
+                  {{cat_name}}
+                </th>
+              </tr>
+              <tr v-for = "(itn, name) in itn_cat">
+                <td>
+                  {{itn.Hex}}
+                </td>
+                <td v-html = "f(itn.Mnemonic)">
+                </td>
+                <td>
+                </td>
+                <td v-html = "f(itn.Description)">
+                </td>
+                <td v-html = "f2(f(itn.Function))">
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id = "help">
+
+    </div>
+  </body>
+  <script type = "text/javascript">
+
+    let page = new Vue({
+      el: '#page',
+      data: function(){
+        return{
+          colors:{
+            Hex: "227",
+            Mnemonic: "254",
+            Description: "276",
+            Function: "295"
+          },
+          search:{
+            Hex: "",
+            Mnemonic: "",
+            Description: "",
+            Function: ""
+          },
+          name: "",
+          itn: {
+            Hex: "",
+            Mnemonic: "",
+            Description: "",
+            Function: ""
+          },
+          itnset: ITNS,
+          keys: new SmartKeys(ASSEMBLY.PIC18MCU.Keys),
+        }
+      },
+      methods: {
+        setMnemonic: function(e){
+          this.name = e.target.value.split(' ')[0];
+        },
+        arrowFriend: function(e){
+          this.itn.Function = e.target.value.replace('-->', '→');
+        },
+        log: function(e){
+          console.log(e);
+        },
+        add: function(cat){
+          this.itnset[cat][this.name] = {
+            Hex: this.itn.Hex,
+            Mnemonic: this.itn.Mnemonic,
+            Description: this.itn.Description,
+            Function: this.itn.Function,
+          }
+          this.itn.Hex = ""
+          this.itn.Mnemonic = ""
+          this.itn.Description = ""
+          this.itn.Function = ""
+          this.name = ""
+          this.$forceUpdate()
+        },
+        f: function(str){
+          return this.keys.replaceKeys(str, '<i onclick = "help.showEvent(event)">$&</i>');
+        },
+        f2: function(str){
+          return str.replace(/(,|:) /g, (a, b, c) => {return `${a}<br />`})
+        },
+        remove(cat_name, name){
+          delete this.itnset[cat_name][name]
+          this.$forceUpdate()
+        },
+      },
+      computed: {
+        instructions: function(){
+          let itns = {}
+          for(var field in this.search){
+            if (this.search[field].length > 0){
+              for(var cat in this.itnset){
+                for(var name in this.itnset[cat]){
+                  let itn = this.itnset[cat][name];
+                  if (itn[field].toUpperCase().indexOf(this.search[field].toUpperCase()) != -1){
+                    if (itns[cat]){
+                      itns[cat][name] = itn
+                    }else{
+                      itns[cat] = {};
+                      itns[cat][name] = itn
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if (Object.keys(itns).length === 0){
+            return this.itnset
+          }else{
+            return itns
+          }
+        }
+      },
+      created(){
+      }
+    })
+
+    class Hints{
+      constructor(id){
+        this.el = document.getElementById(id);
+        this.keys = new SmartKeys(ASSEMBLY.PIC18MCU.Keys);
+      }
+      showEvent(event){
+        this.show = event.target.innerHTML;
+      }
+      set show(key){
+        let hint_window = null;
+        console.log(key !== false);
+        if (key !== false){
+          key = this.keys.find(key);
+          hint_window = document.createElement('DIV')
+          hint_window.innerHTML = `<h1>${key.cat}</h1><p>${key.info}</p>`
+          hint_window.onclick = () => {this.show = false}
+          this.el.appendChild(hint_window);
+        }
+
+        let height = parseInt(this.el.children[0].clientHeight);
+        let last_bottom = parseInt(this.el.children[0].style.bottom) - 10;
+        let bottom = 5-height;
+        let dec = 10;
+
+        let animate = () => {
+          if (hint_window !== null){
+            hint_window.style.setProperty('bottom', `${bottom}px`)
+          }
+          if(this.el.children.length > 1 || key === false){
+            this.el.children[0].style.setProperty('bottom', `${last_bottom}px`)
+          }
+          if (bottom < 0){
+            bottom += dec;
+            last_bottom -= dec;
+            dec *= 0.97;
+            window.requestAnimationFrame(animate)
+          }else{
+            while (this.el.children.length > 1){
+              this.el.removeChild(this.el.firstChild)
+            }
+          }
+        }
+        window.requestAnimationFrame(animate)
+      }
+    }
+
+    let help = new Hints('help')
+
+  </script>
+  <style type = "text/css">
+  #help div{
+    position: fixed;
+    margin: 0;
+    height: 150px;
+    bottom: -200px;
+    left: 0;
+    background:  #e28800;
+    color: white;
+    border: 3px solid #9c5e00;
+    border-radius: 50px 50px 0 0;
+    margin-left: 27px;
+    max-width: calc(100vh - 54px);
+    padding: 0 30px;
+  }
+
+  body{
+    font-family: 'Roboto Mono';
+    padding: 20px;
+    background: black;
+    font-weight: 335;
+  }
+  i{
+    font-style: normal;
+    cursor: pointer;
+    padding: 3px;
+    margin-top: 5px 0;
+    background: #99999929;
+    font-weight: 409;
+    border-radius: 20px;
+  }
+  .btn{
+    --size: 30px;
+    line-height: var(--size);
+    min-width: var(--size);
+    border-radius: calc(var(--size)/2);
+    font-size: calc(var(--size)*0.7);
+    background: tomato;
+    color: white;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+    margin: 10px;
+  }
+  table{
+    border-spacing: 0cm 0.4em;
+  }
+  table thead tr th h1{
+    font-size: 18px;
+    font-weight: 409;
+    margin: 0;
+  }
+  .search svg{
+    float: left;
+    stroke: var(--hc);
+    position: absolute;
+    top: 0.8em;
+    left: 0.5em;
+  }
+  .search{
+    position: relative;
+    width: 100%;
+
+  }
+  .search input[type="text"] {
+    color: white;
+    font-family: 'Roboto Mono';
+    background: #FFFFFF30;
+    padding-left: 1.85em;
+    padding-right: 0.7em;
+    border-radius: 17px;
+    font-size: 18px;
+    line-height: 34px;
+    font-weight: 409;
+    margin: 0;
+    margin-top: 3px;
+    border: none;
+    outline: none;
+     width: 100%;
+     box-sizing: border-box;
+     -webkit-box-sizing:border-box;
+     -moz-box-sizing: border-box;
+  }
+  table tr th {
+    color: white;
+    border: 3px solid white;
+    padding: 10px;
+    font-weight: 409;
+    border-radius: 30px;
+  }
+  table tr th:nth-of-type(3n+3){
+    border: none;
+  }
+
+  table tr{
+    --hc: white;
+  }
+  table tr td{
+    --bgc1: #232c50;
+    --bgc2: #141d3c;
+    --bdc1: #3c4e8e;
+    --bdc2: #3c4e8e;
+    vertical-align: center;
+    padding: 10px;
+    padding-right: 30px;
+    background: black;
+    color: white;
+  }
+  table tr td:nth-of-type(-1n + 3){
+    --bgc1: #3c4e8e;
+    --bgc2: black;
+    --bdc1: var(--bgc1);
+    --bdc2: var(--bgc1);
+  }
+  table tr td:nth-of-type(1){
+    text-align: center;
+    padding-right: 20px;
+  }
+  table tr td:nth-of-type(3n+1){
+    background: var(--bgc1);
+    border-radius:50px 0px 0px 50px;
+    border: 3px solid var(--bdc1);
+    border-right: none;
+  }
+  table tr td:nth-of-type(3n + 2){
+    background: var(--bgc2);
+    border-radius: 0px 50px 50px 0px;
+    border: 3px solid var(--bdc2);
+    border-left: none;
+  }
+  table tr td:nth-of-type(3n + 3){
+    background: transparent;
+    border: none;
+    width: 0px;
+    padding: 0;
+  }
+  </style>
+
+</html>
