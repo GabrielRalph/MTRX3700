@@ -15,15 +15,15 @@
         <table>
           <thead>
             <tr>
-              <th width = "100px">
+              <th width = "35px">
                 <h1>Hex</h1>
-                <div class = "search">
+                <!-- <div class = "search">
                   <svg height = "1em" width = "1em" viewBox = "0 0 10 10">
                     <path d = "M5.62,5.62L9,9" stroke-linecap = "round"></path>
                     <ellipse cx = "3.5" cy = "3.5" rx = "3" ry = "3"></ellipse>
                   </svg>
                   <input type = "text" v-model = "search.Hex"/>
-                </div>
+                </div> -->
               </th>
               <th>
                 <h1>Mnemonic</h1>
@@ -189,35 +189,42 @@
         this.keys = new SmartKeys(ASSEMBLY.PIC18MCU.Keys);
       }
       showEvent(event){
-        this.show = event.target.innerHTML;
+        let key = this.keys.find(event.target.innerHTML);
+        if (this.show && this.show.info === key.info){
+          this.show = false
+        }else{
+          this.show = key;
+        }
       }
       set show(key){
+        this._show = key;
         let hint_window = null;
-        console.log(key !== false);
+        let height1 = 0;
         if (key !== false){
-          key = this.keys.find(key);
           hint_window = document.createElement('DIV')
           hint_window.innerHTML = `<h1>${key.cat}</h1><p>${key.info}</p>`
           hint_window.onclick = () => {this.show = false}
           this.el.appendChild(hint_window);
+
+          height1 = parseInt(hint_window.clientHeight);
         }
 
-        let height = parseInt(this.el.children[0].clientHeight);
-        let last_bottom = parseInt(this.el.children[0].style.bottom) - 10;
-        let bottom = -height+10;
+        let height0 = parseInt(this.el.children[0].clientHeight) +10;
+        let bottom0 = parseInt(this.el.children[0].style.bottom);
+        let bottom1 = -height1;
         let dec = 10;
 
         let animate = () => {
           if (hint_window !== null){
-            hint_window.style.setProperty('bottom', `${bottom}px`)
+            hint_window.style.setProperty('bottom', `${bottom1}px`)
           }
           if(this.el.children.length > 1 || key === false){
-            this.el.children[0].style.setProperty('bottom', `${last_bottom}px`)
+            this.el.children[0].style.setProperty('bottom', `${bottom0}px`)
           }
-          if (bottom < 0){
-            bottom += dec;
-            last_bottom -= dec;
-            dec *= 0.97;
+          if (bottom1 < -10 || bottom0 > -height0){
+            bottom1 += bottom1 < 0?dec:0;
+            bottom0 -= bottom0 > -height0?dec:0;
+            dec *= 0.98;
             window.requestAnimationFrame(animate)
           }else{
             while (this.el.children.length > 1){
@@ -227,147 +234,147 @@
         }
         window.requestAnimationFrame(animate)
       }
+      get show(){
+        return this._show
+      }
     }
-
     let help = new Hints('help')
 
   </script>
   <style type = "text/css">
-  #help div{
-    position: fixed;
-    margin: 0;
-    height: 150px;
-    bottom: -200px;
-    left: 0;
-    background:  #e28800;
-    color: white;
-    border: 3px solid #9c5e00;
-    border-radius: 50px 50px 0 0;
-    margin-left: 27px;
-    max-width: calc(100vh - 54px);
-    padding: 0 30px;
-  }
+    #help div{
+      position: fixed;
+      margin: 0;
+      bottom: -100%;
+      left: 0;
+      background:  #e28800;
+      color: white;
+      border: 3px solid #9c5e00;
+      border-radius: 50px 50px 0 0;
+      margin-left: 27px;
+      max-width: calc(100vh - 54px);
+      padding: 0 30px;
+    }
 
-  body{
-    font-family: 'Roboto Mono';
-    padding: 20px;
-    background: black;
-    font-weight: 335;
-  }
-  i{
-    font-style: normal;
-    cursor: pointer;
-    padding: 3px;
-    margin-top: 5px 0;
-    background: #99999929;
-    font-weight: 409;
-    border-radius: 20px;
-  }
-  .btn{
-    --size: 30px;
-    line-height: var(--size);
-    min-width: var(--size);
-    border-radius: calc(var(--size)/2);
-    font-size: calc(var(--size)*0.7);
-    background: tomato;
-    color: white;
-    text-align: center;
-    display: inline-block;
-    cursor: pointer;
-    margin: 10px;
-  }
-  table{
-    border-spacing: 0cm 0.4em;
-  }
-  table thead tr th h1{
-    font-size: 18px;
-    font-weight: 409;
-    margin: 0;
-  }
-  .search svg{
-    float: left;
-    stroke: var(--hc);
-    position: absolute;
-    top: 0.8em;
-    left: 0.5em;
-  }
-  .search{
-    position: relative;
-    width: 100%;
+    body{
+      font-family: 'Roboto Mono';
+      padding: 20px;
+      background: black;
+      font-weight: 335;
+    }
+    i{
+      font-style: normal;
+      cursor: pointer;
+      padding: 3px;
+      margin-top: 5px 0;
+      background: #99999929;
+      font-weight: 409;
+      border-radius: 20px;
+    }
+    .btn{
+      --size: 30px;
+      line-height: var(--size);
+      min-width: var(--size);
+      border-radius: calc(var(--size)/2);
+      font-size: calc(var(--size)*0.7);
+      background: tomato;
+      color: white;
+      text-align: center;
+      display: inline-block;
+      cursor: pointer;
+      margin: 10px;
+    }
+    table{
+      border-spacing: 0cm 0.4em;
+    }
+    table thead tr th h1{
+      font-size: 18px;
+      font-weight: 409;
+      margin: 0;
+    }
+    .search svg{
+      float: left;
+      stroke: var(--hc);
+      position: absolute;
+      top: 0.8em;
+      left: 0.5em;
+    }
+    .search{
+      position: relative;
+      width: 100%;
 
-  }
-  .search input[type="text"] {
-    color: white;
-    font-family: 'Roboto Mono';
-    background: #FFFFFF30;
-    padding-left: 1.85em;
-    padding-right: 0.7em;
-    border-radius: 17px;
-    font-size: 18px;
-    line-height: 34px;
-    font-weight: 409;
-    margin: 0;
-    margin-top: 3px;
-    border: none;
-    outline: none;
-     width: 100%;
-     box-sizing: border-box;
-     -webkit-box-sizing:border-box;
-     -moz-box-sizing: border-box;
-  }
-  table tr th {
-    color: white;
-    border: 3px solid white;
-    padding: 10px;
-    font-weight: 409;
-    border-radius: 30px;
-  }
-  table tr th:nth-of-type(3n+3){
-    border: none;
-  }
+    }
+    .search input[type="text"] {
+      color: white;
+      font-family: 'Roboto Mono';
+      background: #FFFFFF30;
+      padding-left: 1.85em;
+      padding-right: 0.7em;
+      border-radius: 17px;
+      font-size: 18px;
+      line-height: 34px;
+      font-weight: 409;
+      margin: 0;
+      margin-top: 3px;
+      border: none;
+      outline: none;
+       width: 100%;
+       box-sizing: border-box;
+       -webkit-box-sizing:border-box;
+       -moz-box-sizing: border-box;
+    }
+    table tr th {
+      color: white;
+      border: 3px solid white;
+      padding: 10px;
+      font-weight: 409;
+      border-radius: 30px;
+    }
 
-  table tr{
-    --hc: white;
-  }
-  table tr td{
-    --bgc1: #232c50;
-    --bgc2: #141d3c;
-    --bdc1: #3c4e8e;
-    --bdc2: #3c4e8e;
-    vertical-align: center;
-    padding: 10px;
-    padding-right: 30px;
-    background: black;
-    color: white;
-  }
-  table tr td:nth-of-type(-1n + 3){
-    --bgc1: #3c4e8e;
-    --bgc2: black;
-    --bdc1: var(--bgc1);
-    --bdc2: var(--bgc1);
-  }
-  table tr td:nth-of-type(1){
-    text-align: center;
-    padding-right: 20px;
-  }
-  table tr td:nth-of-type(3n+1){
-    background: var(--bgc1);
-    border-radius:50px 0px 0px 50px;
-    border: 3px solid var(--bdc1);
-    border-right: none;
-  }
-  table tr td:nth-of-type(3n + 2){
-    background: var(--bgc2);
-    border-radius: 0px 50px 50px 0px;
-    border: 3px solid var(--bdc2);
-    border-left: none;
-  }
-  table tr td:nth-of-type(3n + 3){
-    background: transparent;
-    border: none;
-    width: 0px;
-    padding: 0;
-  }
+
+    table tr{
+      --hc: white;
+    }
+    table tr td{
+      --bgc1: #232c50;
+      --bgc2: #141d3c;
+      --bdc1: #3c4e8e;
+      --bdc2: #3c4e8e;
+      vertical-align: center;
+      padding: 10px;
+      /* padding-right: 30px; */
+      background: black;
+      color: white;
+    }
+    table tr td:nth-of-type(-1n + 3){
+      --bgc1: #3c4e8e;
+      --bgc2: black;
+      --bdc1: var(--bgc1);
+      --bdc2: var(--bgc1);
+    }
+    table tr td:nth-of-type(1){
+      text-align: center;
+      padding-right: 20px;
+    }
+    table tr td:nth-of-type(3n+1){
+      background: var(--bgc1);
+      border-radius:50px 0px 0px 50px;
+      border: 3px solid var(--bdc1);
+      padding-left: 20px;
+      border-right: none;
+    }
+    table tr td:nth-of-type(3n + 2){
+      background: var(--bgc2);
+      border-radius: 0px 50px 50px 0px;
+      border: 3px solid var(--bdc2);
+      border-left: none;
+    }
+    table tr td:nth-of-type(3n + 3), table tr th:nth-of-type(3n+3){
+      background: transparent;
+      border: none;
+      width:0.4em;
+      padding: 0px;
+      border-spacing: 0px 0px;
+    }
   </style>
-
 </html>
