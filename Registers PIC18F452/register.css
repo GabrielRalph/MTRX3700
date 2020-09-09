@@ -1,0 +1,113 @@
+.register{
+  --theme: 200;
+  --padding: 1em;
+  --spacing: 0.5em;
+  --size: 4.2em;
+  --border: 0.2em;
+
+  --r: calc(var(--size)/2 + var(--padding) + var(--border));
+  --exr: calc(var(--r) + var(--spacing)*2);
+  --uexr: calc(var(--exr)/2);
+  background: hsl(var(--theme), 100%, 0%);
+  padding: var(--spacing);
+  border-radius: var(--uexr) var(--uexr) var(--exr) var(--exr);
+  display: inline-grid;
+  font-size: 14px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+/* Register Bits Block */
+.register > div{
+  margin-top: var(--spacing);
+  padding: var(--spacing);
+  border-radius: calc(var(--r) + var(--spacing));
+  border: var(--border) solid hsl(var(--theme), 100%, 40%);
+  background: black;
+  display: inline-flex;
+}
+
+/* Register Bit Circle */
+.register > div > div{
+  border: var(--border) solid hsl(var(--theme), 100%, 40%);
+  background: hsl(var(--theme), 100%, 10%);
+  margin-right: 0.5em;
+  border-radius: var(--r);
+  line-height: calc(var(--size) / 3);
+  position: relative;
+  cursor: pointer;
+}
+
+/* last bit circle */
+.register > div > div:last-of-type{
+  margin-right: 0;
+}
+
+/* first bit circle */
+.register > div > div:first-of-type{
+  cursor: default;
+  background: hsl(var(--theme), 100%, 20%);
+}
+
+/* Register description */
+.register p{
+  text-align: left;
+  float: left;
+  margin: 0;
+  padding-left: 13em;
+}
+
+/* Regesiter name */
+.register h1{
+  margin: 0 3em;
+  font-size: 1.4em;
+  padding: 3px;
+  border-radius: 30px;
+  top: 0;
+  left: 0;
+  position: absolute;
+}
+
+/* Bit index title*/
+.register > div > div h2{
+  position: absolute;
+  top: var(--padding);
+  left: calc(var(--padding) * 0.8);
+  color: hsl(var(--theme), 100%, 30%);
+  font-size: 1em;
+  margin: 0;
+  line-height: var(--size);
+  padding-right: 5px;
+}
+
+/* Bit information block*/
+.register > div > div > div{
+  float: left;
+  padding: var(--padding);
+  min-width: var(--size);
+}
+
+/* Bit information fields */
+.register > div > div > div h3{
+  color: hsl(var(--theme), 100%, 90%);
+  font-size: 1em;
+  margin: 0;
+}
+
+#hints div{
+  position: fixed;
+  margin: 0;
+  bottom: -100%;
+  left: 0;
+  background:  #e28800;
+  color: white;
+  border: 3px solid #9c5e00;
+  border-radius: 50px 50px 0 0;
+  margin-left: 27px;
+  max-width: calc(100vh - 54px);
+  padding: 0 30px;
+  cursor: pointer;
+}
+#hints div p{
+  text-align: left;
+}

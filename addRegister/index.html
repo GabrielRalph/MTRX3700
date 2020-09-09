@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MTRX3700</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,271;0,335;1,382;1,409&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src= "https://www.gstatic.com/firebasejs/7.14.4/firebase.js"></script>
+  <script src= "../Registers PIC18F452/register.js"></script>
+  <link href="../Registers PIC18F452/register.css" rel="stylesheet">
+  <script type="text/javascript" src="../Registers PIC18F452/hints.js"></script>
+
+  <body>
+    <div id = 'add-register'>
+      <div v-html = "current">
+      </div>
+      <div v-if = "off">
+        <div @click = "off = false" class = "btn">
+          add bit
+        </div>
+        <div style="top: 60px" @click = "popBit" class = "btn">
+          pop bit
+        </div>
+        <div style="top: 120px" @click = "save" class = "btn">
+          save
+        </div>
+        <div>
+          <h3>Name</h3>
+          <input v-model = "name"/>
+        </div>
+        <div>
+          <h3>Description</h3>
+          <textarea v-model = "description"></textarea>
+        </div>
+      </div>
+      <div v-else class = "inputs">
+        <div class = "btn" @click = "addBit">
+          add
+        </div>
+        <div style="top: 60px" @click = "clearBit" class = "btn">
+          clear
+        </div>
+        <div style="top: 120px" @click = "back" class = "btn">
+          back
+        </div>
+        <div>
+          <h3>Name</h3>
+          <input v-model = "temp_bit.name"/>
+        </div>
+        <div>
+          <h3>MCLR</h3>
+          <input v-model = "temp_bit.MCLR"/>
+        </div>
+        <div>
+          <h3>POBO</h3>
+          <input v-model = "temp_bit.POBO"/>
+        </div>
+        <div>
+          <h3>rw</h3>
+          <input v-model = "temp_bit.rw"/>
+        </div>
+        <div>
+          <h3>Description</h3>
+          <textarea v-model = "temp_bit.description"></textarea>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+    const firebaseConfig = {
+      apiKey: "AIzaSyDniS0prRjEmOyKbMd4jequo9gkwe2otKI",
+      authDomain: "fashion-galetora.firebaseapp.com",
+      databaseURL: "https://fashion-galetora.firebaseio.com",
+      projectId: "fashion-galetora",
+      storageBucket: "fashion-galetora.appspot.com",
+      messagingSenderId: "469438762797",
+      appId: "1:469438762797:web:759f543ce82183b9f04da4",
+      measurementId: "G-Q7DJ37H3D0"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    let addRegister = new Vue({
+      el: '#add-register',
+      data: function(){
+        return {
+          name: '',
+          description: '',
+          bits: [],
+          temp_bit: {
+            name: '',
+            description: '',
+            MCLR: '',
+            POBO: '',
+            rw: ''
+          },
+          off: true,
+          reg: new Register(),
+          current: ''
+        }
+      },
+      methods: {
+        addBit: function(){
+          for (var key in this.temp_bit){
+            if (this.temp_bit[key].length == 0){
+              this.temp_bit[key] = null;
+            }
+          }
+          this.bits.push({
+            name: this.temp_bit.name,
+            description: this.temp_bit.description.replace(/\n/g, '<br />'),
+            MCLR: this.temp_bit.MCLR,
+            POBO: this.temp_bit.POBO,
+            rw: this.temp_bit.rw,
+          })
+          this.updateReg()
+        },
+        clearBit: function(){
+          for (var key in this.temp_bit){
+            if (this.temp_bit[key].length != 0){
+              this.temp_bit[key] = '';
+            }
+          }
+        },
+        clearAll: function(){
+          this.name = '';
+          this.description = '';
+          this.bits = [];
+          this.current = '';
+        },
+        updateReg: function(){
+          this.reg.byte = this;
+          console.log(`${this.reg}`);
+          this.current = `${this.reg}`
+        },
+        back: function(){
+
+          this.off = true;
+        },
+        popBit: function(){
+          this.updateReg()
+          this.bits.pop();
+        },
+        save: function(){
+          firebase.database().ref(`/registers/${this.name}`).set(this.reg)
+        }
+      },
+      watch: {
+        name: function(a, b){
+          this.updateReg()
+        },
+        description: function(a, b){
+          this.updateReg()
+        }
+      }
+    })
+
+  </script>
+  <style type = "text/css">
+  textarea{
+    height: 300px;
+    width: 400px;
+  }
+  .btn{
+    position: fixed;
+    top: 0;
+    right: 0;
+    margin: 20px;
+    cursor: pointer;
+  }
+  h3{
+    margin: 5px 0;
+  }
+
+  input, textarea, .btn{
+    background: black;
+    outline: none;
+    border: 3px solid white;
+    border-radius: 20px;
+    color: white;
+    padding: 10px;
+    font-family: 'Roboto Mono';
+    margin-bottom: 20px;
+  }
+  body{
+    font-family: 'Roboto Mono';
+    padding: 20px;
+    background: black;
+    color: white;
+    font-weight: 335;
+    text-align: center;
+  }
+  h1{
+    cursor: pointer;
+  }
+
+  </style>
+
+</html>
