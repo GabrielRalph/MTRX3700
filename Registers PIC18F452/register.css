@@ -12,7 +12,7 @@
   padding: var(--spacing);
   border-radius: var(--uexr) var(--uexr) var(--exr) var(--exr);
   display: inline-grid;
-  font-size: 14px;
+  font-size: 1.4vw;
   position: relative;
   margin-bottom: 10px;
 }
