@@ -47,8 +47,13 @@ class RTEditor{
       this.runEventListeners('change')
     })
     this.observer.observe(this.oDoc, {characterDataOldValue: true, subtree: false, childList: true,})
+    this._focus = false;
     this.oDoc.addEventListener('focusout',() => {
       this.runEventListeners('change')
+      this._focus = false;
+    })
+    this.oDoc.addEventListener('focusin',() => {
+      this._focus = true;
     })
     let shift_tab = false
     this.oDoc.addEventListener('keydown',(e) => {
@@ -125,8 +130,17 @@ class RTEditor{
     this.oDoc.focus();
   }
 
+  get isFocus(){
+    return this._focus;
+  }
+
   get value() {
     return this.oDoc.innerHTML;
+  }
+  set value(val){
+    if (!this.isFocus){
+      this.oDoc.innerHTML = val;
+    }
   }
 }
 
@@ -140,6 +154,7 @@ Vue.component('texteditor', {
   },
   mounted(){
     this.editor = new RTEditor(this.$refs['main_el']);
+    this.editor.value = this.value
     this.editor.onchange = () => {
       this.$emit('input', this.editor.value);
     }

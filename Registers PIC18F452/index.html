@@ -5,15 +5,17 @@
   <title>MTRX3700</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <script type="text/javascript" src="./register.js"></script>
-  <link href="register.css" rel="stylesheet">
-  <script type="text/javascript" src="./hints.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,271;0,335;1,382;1,409&display=swap" rel="stylesheet">
   <script src= "https://www.gstatic.com/firebasejs/7.14.4/firebase.js"></script>
 
-  <body>
-    <div id = "registers">
+  <link href="../build.css" rel="stylesheet">
+  <script type="text/javascript" src="../build.js"></script>
 
+  <body>
+    <div id = "register-list">
+      <wave-loader :loading = "loading"></wave-loader>
+      <fire-registers @loaded = "loading = false"></fire-registers>
     </div>
     <div id = "hints">
 
@@ -30,21 +32,12 @@
       appId: "1:469438762797:web:759f543ce82183b9f04da4",
       measurementId: "G-Q7DJ37H3D0"
     };
-    let registers = document.getElementById('registers')
     firebase.initializeApp(firebaseConfig);
-    firebase.database().ref('/registers').on('value', (sc) => {
-      registers.innerHTML = ''
-      let regs = sc.val();
-      for(var key in regs){
-        let reg = new Register(regs[key])
-        regs[key].bits.forEach((bit, i) => {
-          reg.bits.push(bit)
-        });
-        registers.innerHTML += reg
-      }
+    let register_list = new Vue({el: '#register-list',
+      data: {
+        loading: true
+      },
     })
-    let registerHints = new Hints('hints')
-
   </script>
   <style type = "text/css">
   body{

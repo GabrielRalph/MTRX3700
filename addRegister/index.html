@@ -8,14 +8,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,271;0,335;1,382;1,409&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <script src= "https://www.gstatic.com/firebasejs/7.14.4/firebase.js"></script>
-  <script src= "../Registers PIC18F452/register.js"></script>
-  <script src= "../RichTextEditor.js"></script>
-  <link href="../Registers PIC18F452/register.css" rel="stylesheet">
-  <link href="./styles.css" rel="stylesheet">
-  <script type="text/javascript" src="../Registers PIC18F452/hints.js"></script>
+  <script src= "../build.js"></script>
+  <link href="../build.css" rel="stylesheet">
 
   <body>
     <div id = 'add-register'>
+      <wave-loader :loading = "loading"></wave-loader>
       <register :value = "this" key = "only" @click = "registerClickHandler"></register>
       <div v-if = "edit_byte">
         <div @click = "edit_byte = false" class = "btn">
@@ -97,6 +95,7 @@
           },
           edit_byte: true,
           hints: new Hints('hints'),
+          loading: false,
         }
       },
       methods: {
@@ -136,7 +135,27 @@
           this.edit_byte = true;
         },
         save: function(){
-          firebase.database().ref(`/registers/${this.name}`).set(this.reg)
+          if (!this.name || this.name.length == 0){
+            alert('Register must be given a name')
+          }else{
+            if(this.bits.length != 8){
+              if (confirm(`Register: ${this.name}, only has ${this.bits.length} bits, are you sure you want to save?`)){
+                this.fire_save()
+              }
+            }else{
+              this.fire_save()
+            }
+          }
+        },
+        fire_save: function(){
+          this.loading = true;
+          firebase.database().ref(`/registers/${this.name}`).set({
+            name: this.name,
+            description: this.description,
+            bits: this.bits
+          }).then(() => {
+            this.loading = false;
+          })
         },
         registerClickHandler: function(e){
           if (this.edit_byte == true){
@@ -147,11 +166,44 @@
             }
           }
         }
-      },
+      }
     })
   </script>
   <style type = "text/css">
 
+    body{
+      font-family: 'Roboto Mono';
+      padding: 20px;
+      background: black;
+      color: white;
+      font-weight: 335;
+      text-align: center;
+    }
+
+    .btn{
+      position: fixed;
+      top: 0;
+      right: 0;
+      margin: 20px;
+      cursor: pointer;
+    }
+    h3{
+      margin: 5px 0;
+    }
+
+    input, textarea, .btn{
+      background: transparent;
+      outline: none;
+      border: 3px solid white;
+      border-radius: 20px;
+      color: white;
+      padding: 10px;
+      font-family: 'Roboto Mono';
+      margin-bottom: 20px;
+    }
+    h1{
+      cursor: pointer;
+    }
   </style>
 
 </html>
