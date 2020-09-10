@@ -56,15 +56,57 @@ class Register{
   }
 
   toString(){
-    let html_bits = this._bit_template({name: 'Name', POBO: 'PO/BO', MCLR: 'MCLR'})
+    let html_bits = this._bit_template({name: this.name, description: this.description, POBO: 'PO/BO', MCLR: 'MCLR'})
     this.bits.forEach((bit, i) => {
       html_bits += this._bit_template(bit, i);
     });
     return `
     <div class = "register">
-      <h1>${this.name}</h1>
-      <p>${this.description}</p>
-      <div>${html_bits}</div>
+      <div class = "bits-box">${html_bits}</div>
     </div>`
   }
 }
+
+Vue.component('register', {
+  props: ['value'],
+  template: `
+  <div class = 'register'>
+    <register-bit :value = "value" :key = "value.name" @click = "handleClick"></register-bit>
+    <register-bit v-for = "(bit, i) in value.bits" :value = "bit" :key = "bit.name + i" :indice = "i" @click = "handleClick"></register-bit>
+  </div>`,
+  data: function(){
+    return {
+      xbits: [0, 3, 6, 9]
+    }
+  },
+  methods: {
+    handleClick: function(e){
+      this.$emit('click', e)
+    }
+  }
+})
+
+Vue.component('register-bit', {
+  props: {
+    value: Object,
+    indice: {
+      type: Number,
+      default: null,
+    }
+  },
+  template: `
+  <div @click = "clickHandler">
+    <h2 v-if = "indice !== null">{{indice}}</h2>
+    <div>
+      <h3>{{value.name?value.name:(indice == null?'NAME':'-')}}</h3>
+      <h3>{{value.POBO?value.POBO:(indice == null?'PO/BO':'-')}}</h3>
+      <h3>{{value.MCLR?value.MCLR:(indice == null?'MCLR':'-')}}</h3>
+    </div>
+  </div>
+  `,
+  methods: {
+    clickHandler: function(){
+      this.$emit('click', Object.assign({i: this.indice}, this.value))
+    }
+  },
+})

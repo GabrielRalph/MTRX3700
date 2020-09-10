@@ -1,0 +1,85 @@
+body{
+  font-family: 'Roboto Mono';
+  padding: 20px;
+  background: black;
+  color: white;
+  font-weight: 335;
+  text-align: center;
+}
+
+textarea{
+  height: 300px;
+  width: 400px;
+  display: inline-block;
+  text-align: left;
+}
+.btn{
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  cursor: pointer;
+}
+h3{
+  margin: 5px 0;
+}
+
+input, textarea, .btn{
+  background: transparent;
+  outline: none;
+  border: 3px solid white;
+  border-radius: 20px;
+  color: white;
+  padding: 10px;
+  font-family: 'Roboto Mono';
+  margin-bottom: 20px;
+}
+h1{
+  cursor: pointer;
+}
+/* TEXT EDITOR STYLES */
+/* Main box */
+.editor-box {
+  position: relative;
+  display: inline-block;
+  text-align: left;
+  --theme: white;
+}
+/* Tool box */
+.tool-box{
+  user-select: none;
+  position: absolute;
+  top:0;
+  right:0;
+  padding: 10px;
+}
+/* Buttons */
+.tool-box div{
+  font-size: 15px;
+
+  --border-size: calc(1em * 0.15);
+  --padding: calc(1em * 0.2);
+  --r: calc(0.5em + var(--border-size) + var(--padding));
+
+  padding: var(--padding);
+  border: var(--border-size) solid var(--theme);
+  border-radius: var(--r);
+  margin-bottom: 0.5em;
+  line-height: 1em;
+  width: 1em;
+  color: white;
+  text-align: center;
+}
+
+/* Editable div */
+.doc{
+  width: 540px;
+  height: 200px;
+  border: 3px solid var(--theme);
+  padding: 0 10px;
+  border-radius: 20px;
+  outline: none;
+}
+.doc p{
+  margin: 0;
+}

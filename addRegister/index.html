@@ -9,21 +9,19 @@
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <script src= "https://www.gstatic.com/firebasejs/7.14.4/firebase.js"></script>
   <script src= "../Registers PIC18F452/register.js"></script>
+  <script src= "../RichTextEditor.js"></script>
   <link href="../Registers PIC18F452/register.css" rel="stylesheet">
+  <link href="./styles.css" rel="stylesheet">
   <script type="text/javascript" src="../Registers PIC18F452/hints.js"></script>
 
   <body>
     <div id = 'add-register'>
-      <div v-html = "current">
-      </div>
-      <div v-if = "off">
-        <div @click = "off = false" class = "btn">
+      <register :value = "this" key = "only" @click = "registerClickHandler"></register>
+      <div v-if = "edit_byte">
+        <div @click = "edit_byte = false" class = "btn">
           add bit
         </div>
-        <div style="top: 60px" @click = "popBit" class = "btn">
-          pop bit
-        </div>
-        <div style="top: 120px" @click = "save" class = "btn">
+        <div style="top: 60px" @click = "save" class = "btn">
           save
         </div>
         <div>
@@ -31,8 +29,7 @@
           <input v-model = "name"/>
         </div>
         <div>
-          <h3>Description</h3>
-          <textarea v-model = "description"></textarea>
+          <texteditor v-model = "description"></texteditor>
         </div>
       </div>
       <div v-else class = "inputs">
@@ -63,9 +60,12 @@
         </div>
         <div>
           <h3>Description</h3>
-          <textarea v-model = "temp_bit.description"></textarea>
+          <texteditor v-model = "temp_bit.description" ></texteditor>
         </div>
       </div>
+    </div>
+    <div id = "hints">
+
     </div>
   </body>
   <script type="text/javascript">
@@ -95,26 +95,20 @@
             POBO: '',
             rw: ''
           },
-          off: true,
-          reg: new Register(),
-          current: ''
+          edit_byte: true,
+          hints: new Hints('hints'),
         }
       },
       methods: {
         addBit: function(){
-          for (var key in this.temp_bit){
-            if (this.temp_bit[key].length == 0){
-              this.temp_bit[key] = null;
-            }
-          }
           this.bits.push({
             name: this.temp_bit.name,
-            description: this.temp_bit.description.replace(/\n/g, '<br />'),
+            description: this.temp_bit.description,
             MCLR: this.temp_bit.MCLR,
             POBO: this.temp_bit.POBO,
             rw: this.temp_bit.rw,
           })
-          this.updateReg()
+          this.$forceUpdate()
         },
         clearBit: function(){
           for (var key in this.temp_bit){
@@ -123,77 +117,40 @@
             }
           }
         },
+        removeNthBit: function(n){
+          let new_bits = [];
+          this.bits.forEach((bit, i) => {
+            if (n != i){
+              new_bits.push(bit)
+            }
+          });
+          this.bits = new_bits;
+        },
         clearAll: function(){
           this.name = '';
           this.description = '';
           this.bits = [];
           this.current = '';
         },
-        updateReg: function(){
-          this.reg.byte = this;
-          console.log(`${this.reg}`);
-          this.current = `${this.reg}`
-        },
         back: function(){
-
-          this.off = true;
-        },
-        popBit: function(){
-          this.updateReg()
-          this.bits.pop();
+          this.edit_byte = true;
         },
         save: function(){
           firebase.database().ref(`/registers/${this.name}`).set(this.reg)
+        },
+        registerClickHandler: function(e){
+          if (this.edit_byte == true){
+            this.hints.show = {head: e.name, body: e.description}
+          }else{
+            if (e.i != null){
+              this.removeNthBit(e.i)
+            }
+          }
         }
       },
-      watch: {
-        name: function(a, b){
-          this.updateReg()
-        },
-        description: function(a, b){
-          this.updateReg()
-        }
-      }
     })
-
   </script>
   <style type = "text/css">
-  textarea{
-    height: 300px;
-    width: 400px;
-  }
-  .btn{
-    position: fixed;
-    top: 0;
-    right: 0;
-    margin: 20px;
-    cursor: pointer;
-  }
-  h3{
-    margin: 5px 0;
-  }
-
-  input, textarea, .btn{
-    background: black;
-    outline: none;
-    border: 3px solid white;
-    border-radius: 20px;
-    color: white;
-    padding: 10px;
-    font-family: 'Roboto Mono';
-    margin-bottom: 20px;
-  }
-  body{
-    font-family: 'Roboto Mono';
-    padding: 20px;
-    background: black;
-    color: white;
-    font-weight: 335;
-    text-align: center;
-  }
-  h1{
-    cursor: pointer;
-  }
 
   </style>
 

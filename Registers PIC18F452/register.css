@@ -1,94 +1,63 @@
 .register{
+  font-size: 1.3vw;
   --theme: 200;
-  --padding: 1em;
+  --padding: 1.2em;
   --spacing: 0.5em;
-  --size: 4.2em;
   --border: 0.2em;
 
-  --r: calc(var(--size)/2 + var(--padding) + var(--border));
-  --exr: calc(var(--r) + var(--spacing)*2);
-  --uexr: calc(var(--exr)/2);
-  background: hsl(var(--theme), 100%, 0%);
-  padding: var(--spacing);
-  border-radius: var(--uexr) var(--uexr) var(--exr) var(--exr);
-  display: inline-grid;
-  font-size: 1.4vw;
-  position: relative;
-  margin-bottom: 10px;
-}
+  --r: calc(3em + 2*var(--padding) + 2*var(--border) + var(--spacing));
 
-/* Register Bits Block */
-.register > div{
-  margin-top: var(--spacing);
   padding: var(--spacing);
-  border-radius: calc(var(--r) + var(--spacing));
+  border-radius: var(--r);
   border: var(--border) solid hsl(var(--theme), 100%, 40%);
-  background: black;
+  margin-bottom: var(--spacing);
   display: inline-flex;
 }
 
 /* Register Bit Circle */
-.register > div > div{
+.register > div{
+  --r: calc(3em + var(--padding) + var(--border));
   border: var(--border) solid hsl(var(--theme), 100%, 40%);
   background: hsl(var(--theme), 100%, 10%);
   margin-right: 0.5em;
   border-radius: var(--r);
-  line-height: calc(var(--size) / 3);
+  line-height: 1em;
   position: relative;
   cursor: pointer;
 }
 
 /* last bit circle */
-.register > div > div:last-of-type{
+.register > div:last-of-type{
   margin-right: 0;
 }
 
 /* first bit circle */
-.register > div > div:first-of-type{
+.register > div:first-of-type{
   cursor: default;
   background: hsl(var(--theme), 100%, 20%);
 }
 
-/* Register description */
-.register p{
-  text-align: left;
-  float: left;
-  margin: 0;
-  padding-left: 13em;
-}
-
-/* Regesiter name */
-.register h1{
-  margin: 0 3em;
-  font-size: 1.4em;
-  padding: 3px;
-  border-radius: 30px;
+/* Bit index title*/
+.register > div h2{
+  position: absolute;
   top: 0;
   left: 0;
-  position: absolute;
-}
-
-/* Bit index title*/
-.register > div > div h2{
-  position: absolute;
-  top: var(--padding);
-  left: calc(var(--padding) * 0.8);
   color: hsl(var(--theme), 100%, 30%);
   font-size: 1em;
-  margin: 0;
-  line-height: var(--size);
+  margin: var(--padding) var(--spacing);
+  line-height: 3em;
   padding-right: 5px;
 }
 
 /* Bit information block*/
-.register > div > div > div{
+.register div > div{
   float: left;
-  padding: var(--padding);
-  min-width: var(--size);
+  padding: var(--padding) 0;
+  width: calc(3em + 2*var(--padding));
 }
 
 /* Bit information fields */
-.register > div > div > div h3{
+.register > div > div h3{
   color: hsl(var(--theme), 100%, 90%);
   font-size: 1em;
   margin: 0;
@@ -108,6 +77,6 @@
   padding: 0 30px;
   cursor: pointer;
 }
-#hints div p{
+#hints p{
   text-align: left;
 }

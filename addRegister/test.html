@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+<title>Rich Text Editor</title>
+</head>
+<body>
+<div id = "textBox">
+  <!-- <div>
+    <div onclick = "rTEditor.printDoc()">S</div>
+    <div onclick = "rTEditor.formatDoc('bold')">B</div>
+    <div onclick = "rTEditor.formatDoc('indent')">-></div>
+    <div onclick = "rTEditor.formatDoc('outdent')"><-</div>
+    <div onclick = "rTEditor.formatDoc('italic')"><i>I</i></div>
+    <div onclick = "rTEditor.formatDoc('insertorderedlist')">...</div>
+  </div> -->
+</div>
+</body>
+<script type="text/javascript">
+
+class RTEditor{
+  constructor(el, tools = {}) {
+    this.eventCallbackParams = {
+      'onchange': 'value'
+    }
+    this.tools = {
+      '<b>b</b>': 'bold',
+      '<i>i</i>': 'italic',
+      '⇢': 'indent',
+      '⇠': 'outdent',
+    }
+    this.tools = Object.assign(this.tools, tools)
+    this.el = document.getElementById(el);
+
+    //Create text document
+    this.oDoc = document.createElement('div')
+    this.oDoc.setAttribute('class', 'doc');
+
+    //Create tool box
+    this.tool_box = document.createElement('div');
+    this.tool_box.setAttribute('class', 'tool-box');
+
+    //Create tools
+    for(var name in this.tools){
+      //Create tool el
+      let tool = document.createElement('DIV');
+      let toolCmd = this.tools[name];
+      tool.innerHTML = name;
+      //Attach listener
+      tool.onclick = () => {
+        this.formatDoc(toolCmd)
+      }
+      this.tool_box.appendChild(tool)
+    }
+
+    //Add tool box and text document
+    this.el.appendChild(this.oDoc);
+    this.el.appendChild(this.tool_box);
+
+    this.setupDoc();
+
+    this.observer = new MutationObserver(() => {
+      this.runEventListeners('change')
+    })
+    this.observer.observe(this.oDoc, {characterDataOldValue: true, subtree: false, childList: true,})
+    this.oDoc.addEventListener('focusout',() => {
+      this.runEventListeners('change')
+    })
+  }
+
+  set onchange(val){
+    if (val instanceof Function){
+      this._onchange = [val];
+    }else{
+      throw new TypeError('onchange can only be set to a function');
+    }
+  }
+  get onchange(){
+    if (this._onchange){
+      return this._onchange;
+    }else{
+      this._onchange = [];
+      return [];
+    }
+  }
+  addEventListener(name, callback){
+    if (this[`on${name}`]){
+      if (callback instanceof Function){
+        this[`_on${name}`].push(callback);
+      }else{
+        throw new TypeError('Event listeners must be functions');
+      }
+    }else{
+      throw `${name} is not a valid event`
+    }
+  }
+  runEventListeners(name){
+    if (this[`on${name}`]){
+      let e = this[`on${name}`];
+      e.forEach((callback) => {
+        if (this.eventCallbackParams[`on${name}`]){
+          let paramKey = this.eventCallbackParams[`on${name}`];
+          if (this[paramKey]){
+            callback(this[paramKey]);
+          }else{
+            throw `${paramKey} is not a valid parameter`
+          }
+        }else{
+          callback()
+        }
+      });
+    }else{
+      throw `${name} is not a valid event`
+    }
+  }
+
+  formatDoc(sCmd, sValue) {
+    this.oDoc.focus();
+    document.execCommand(sCmd, false, sValue);
+  }
+
+  setupDoc() {
+    let oContent = document.createRange();
+    oContent.selectNodeContents(this.oDoc);
+    this.oDoc.innerHTML = oContent.toString();
+    this.oDoc.contentEditable = true;
+    this.oDoc.focus();
+  }
+
+  get value() {
+    return this.oDoc.innerHTML;
+  }
+}
+rTEditor = new RTEditor("textBox");
+
+
+</script>
+<style type="text/css">
+  #textBox {
+    position: relative;
+    display: inline-block;
+  }
+  .tool-box{
+    user-select: none;
+    --size: 1em;
+    position: absolute;
+    top:0;
+    right:0;
+    padding: 10px;
+  }
+  .tool-box div{
+    user-select: none;
+
+    margin-bottom: 5px;
+    line-height: var(--size);
+    width: var(--size);
+    border-radius: var(--size);
+    background: hsl(44, 100%, 50%);
+    color: white;
+    text-align: center;
+    padding: calc(var(--size)/3);
+  }
+  .doc{
+    width: 540px;
+    height: 200px;
+    border: 4px hsl(44, 100%, 50%) solid;
+    padding: 0 10px;
+    border-radius: 20px;
+    outline: none;
+  }
+  </style>
+</html>
