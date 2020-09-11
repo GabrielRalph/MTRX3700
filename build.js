@@ -182,7 +182,6 @@ Vue.component('fire-registers', {
       let regs = sc.val();
       this.registers = [];
       for (var key in regs){
-        console.log(regs[key]);
         this.registers.push(regs[key])
       }
       this.$emit('loaded')
@@ -196,7 +195,7 @@ Vue.component('fire-registers', {
           this.last_click = e.name;
           setTimeout(() => {
             console.log(this.click_count);
-            if(this.click_count > 2){
+            if(this.click_count > 3){
               firebase.database().ref(`/registers/${this.last_click}`).remove()
             }
             this.click_count = 0;
@@ -255,8 +254,8 @@ Vue.component('register-bit', {
     }
   },
   template: `
-  <div @click = "clickHandler">
-    <h2 v-if = "indice !== null">{{indice}}</h2>
+  <div @click = "clickHandler" :class = "{highlight: value.description.length > 0}">
+    <h2 v-if = "indice !== null">{{7 - indice}}</h2>
     <div>
       <h3>{{value.name?value.name:(indice == null?'NAME':'-')}}</h3>
       <h3>{{value.POBO?value.POBO:(indice == null?'PO/BO':'-')}}</h3>

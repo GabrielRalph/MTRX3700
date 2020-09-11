@@ -99,13 +99,28 @@
         }
       },
       methods: {
+        formatIndex: function(name){
+          if (this.temp_bit[name] && this.temp_bit[name].length > 0){
+            return this.temp_bit[name].replace(/({(-?(\d)*)})/g, (a, b, c) => {
+              if (c){
+                return `${7 - this.bits.length + parseInt(c)}`
+              }else{
+                return `${7 - this.bits.length}`
+              }
+            })
+          }else{
+            return this.temp_bit[name]
+          }
+        },
         addBit: function(){
+          let desc = this.formatIndex('description');
+          let name = this.formatIndex('name');
           this.bits.push({
-            name: this.temp_bit.name,
-            description: this.temp_bit.description,
+            name: name,
+            description: desc,
             MCLR: this.temp_bit.MCLR,
             POBO: this.temp_bit.POBO,
-            rw: this.temp_bit.rw,
+            rw: this.temp_bit.rw?this.temp_bit.rw.toLowerCase():'u',
           })
           this.$forceUpdate()
         },
@@ -186,6 +201,7 @@
       right: 0;
       margin: 20px;
       cursor: pointer;
+      user-select: none;
     }
     h3{
       margin: 5px 0;

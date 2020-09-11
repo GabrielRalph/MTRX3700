@@ -35,7 +35,7 @@ class SmartKeys{
       key = key.replace(/(\*|\+|\!|\|)/g, (a) => {
         return `\\${a}`
       })
-      let reg = new RegExp(`([(]| |^)(${key})(?!([A-Z]|[a-z]|\\*))`, 'g');
+      let reg = new RegExp(`([(]|/|,| |^)(${key})(?!([A-Z]|[a-z]|\\*))`, 'g');
       str = str.replace(reg, (a,b,c) => {
         if (replace instanceof Function){
           return replace(c)

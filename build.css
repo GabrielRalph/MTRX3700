@@ -1,9 +1,9 @@
 /* REGISTER STYLE SHEET */
 /* Register block */
 .register{
-  font-size: 1.3vw;
+  font-size: 1.4vw;
   --theme: 200;
-  --padding: 1.2em;
+  --padding: 1.4em;
   --spacing: 0.5em;
   --border: 0.2em;
 
@@ -20,12 +20,10 @@
 .register > div{
   --r: calc(3em + var(--padding) + var(--border));
   border: var(--border) solid hsl(var(--theme), 100%, 40%);
-  background: hsl(var(--theme), 100%, 10%);
   margin-right: 0.5em;
   border-radius: var(--r);
   line-height: 1em;
   position: relative;
-  cursor: pointer;
 }
 
 /* last bit circle */
@@ -57,6 +55,13 @@
   float: left;
   padding: var(--padding) 0;
   width: calc(3em + 2*var(--padding));
+}
+.register > div:not(.highlight){
+  background: hsl(var(--theme), 100%, 10%);
+}
+.highlight{
+  cursor: pointer;
+  background: hsl(var(--theme), 100%, 15%);
 }
 
 /* Bit information fields */
@@ -128,12 +133,16 @@
 
 /* Editable div */
 .doc{
+  overflow: scroll;
   width: 540px;
   height: 200px;
   border: 3px solid var(--theme);
   padding: 0 10px;
   border-radius: 20px;
   outline: none;
+}
+.doc::-webkit-scrollbar{
+  display: none;
 }
 .doc p{
   margin: 0;
