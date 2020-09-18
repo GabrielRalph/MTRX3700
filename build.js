@@ -349,7 +349,7 @@ class Hints{
   }
   set show(hint){
     let i = 0;
-    if (typeof hint == 'object' && 'head' in hint && 'body' in hint && typeof hint.head == 'string' && typeof hint.body == 'string'){
+    if (typeof hint == 'object' && 'head' in hint && 'body' in hint && typeof hint.head == 'string' && typeof hint.body == 'string' && hint.body.length > 0){
       let hint_a = new Hint(this);
       this.hints.push(hint_a);
       hint_a.content = hint;

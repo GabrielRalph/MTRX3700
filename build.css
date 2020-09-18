@@ -1,7 +1,6 @@
 /* REGISTER STYLE SHEET */
 /* Register block */
 .register{
-  font-size: 1.4vw;
   --theme: 200;
   --padding: 1.4em;
   --spacing: 0.5em;
@@ -89,6 +88,7 @@
   max-width: calc(100vh - 100px);
   padding: 0 30px;
   cursor: pointer;
+  font-size: 1.2em;
 }
 #hints p{
   text-align: left;
