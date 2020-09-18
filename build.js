@@ -341,50 +341,123 @@ Vue.component('wave-loader', {
 class Hints{
   constructor(id){
     this.el = document.getElementById(id);
+    this.hints = [];
+
+    this.el.ondblclick = () => {
+      this.show = false;
+    }
   }
   set show(hint){
-    if (this.show === hint || (this.show && this.show.body === hint.body)){
-      hint = false;
+    let i = 0;
+    if (typeof hint == 'object' && 'head' in hint && 'body' in hint && typeof hint.head == 'string' && typeof hint.body == 'string'){
+      let hint_a = new Hint(this);
+      this.hints.push(hint_a);
+      hint_a.content = hint;
+      hint_a.smoothShow();
+      i = 1;
     }
-    this._show = hint;
-    let hint_window = null;
-    let height1 = 0;
-    if (hint !== false){
-      hint_window = document.createElement('DIV')
-      if (hint.body){
-        hint_window.innerHTML = `<h1>${hint.head}</h1><p>${hint.body}</p>`
-      }else if (typeof hint === 'string'){
-        hint_window.innerHTML = hint
-      }
-      hint_window.onclick = () => {this.show = false}
-      this.el.appendChild(hint_window);
-      height1 = parseInt(hint_window.clientHeight);
+
+    while (this.hints.length > i){
+      let hint_b = this.hints.shift();
+      console.log(hint_b);
+      hint_b.smoothHide(() => {
+        hint_b.destroy();
+      })
     }
-    let height0 = parseInt(this.el.children[0].clientHeight) +10;
-    let bottom0 = parseInt(this.el.children[0].style.bottom);
-    let bottom1 = -height1;
-    let dec = 10;
-    let frame = () => {
-      if (hint_window !== null){
-        hint_window.style.setProperty('bottom', `${bottom1}px`)
-      }
-      if(this.el.children.length > 1 || hint === false){
-        this.el.children[0].style.setProperty('bottom', `${bottom0}px`)
-      }
-      if (bottom1 < -10 || bottom0 > -height0){
-        bottom1 += bottom1 < 0?dec:0;
-        bottom0 -= bottom0 > -height0?dec:0;
-        dec *= 0.98;
-        window.requestAnimationFrame(frame)
-      }else{
-        while (this.el.children.length > 1){
-          this.el.removeChild(this.el.firstChild)
-        }
-      }
-    }
-    window.requestAnimationFrame(frame)
   }
+
   get show(){
     return this._show
+  }
+}
+
+class Hint{
+  constructor(hints){
+    this.hints = hints;
+    this.el = document.createElement('DIV');
+    this.pos = 0;
+    this.hints.el.appendChild(this.el);
+
+    this.ANIMATION_TIME = 400;
+  }
+
+
+  _animate(bool, callback = null){
+    if (typeof bool !== 'boolean'){
+      throw 'Error setting hidden:\nhidden must be set to a boolean value\n'
+    }else{
+      let start_time = null
+      let next_frame = (time) => {
+        start_time = start_time === null ? time : start_time;
+        let x = Math.PI * (time - start_time)/this.ANIMATION_TIME;
+        let y = 50 * (Math.cos(x) + 1);
+
+        y = bool ? 100 - y: y;
+
+        if (x < Math.PI){
+          this.pos = y;
+          window.requestAnimationFrame(next_frame);
+        }else{
+          this.pos = bool ? 100 : 0;
+          if (callback instanceof Function){
+            callback();
+          }else if (callback != null){
+            throw `Error calling smoothShow:\nCallback must be a Function.\n`
+          }
+        }
+      }
+      window.requestAnimationFrame(next_frame);
+
+    }
+  }
+
+  smoothShow(callback = null){
+    this._animate(true, callback);
+  }
+  smoothHide(callback = null){
+    this._animate(false, callback);
+  }
+
+  //Set the contents of the hint
+  //{
+  //  body: String,
+  //  head: String
+  //}
+  set content(val){
+    if (typeof val == 'object' && 'head' in val && 'body' in val && typeof val.head == 'string' && typeof val.body == 'string'){
+      this.el.innerHTML = `<h1>${val.head}</h1><p>${val.body}</p>`;
+      this._content = {head: val.head, body: val.body};
+    }else{
+      throw `Error setting content: content must be set to an object with format\n{\nbody: String,\nhead: String\n}\n`
+    }
+  }
+  get content(){
+    if (this._content){
+      return this._content;
+    }else{
+      return null
+    }
+  }
+
+  //Set the position of the hint
+  //0: hidden
+  // ...
+  //100: completely shown
+  set pos(d){
+    if (typeof d === 'number' && d >=0 && d <= 100 ){
+      this.el.style.setProperty('transform', `translate(0, ${100 - d}%)`)
+      this._pos = d;
+    }else if (typeof d === 'string'){
+      this.pos = parseFloat(d);
+    }else{
+      throw `Error setting pos: pos must be set to a number between 0 and 100 (inclusive)\nStrings accepted\n`
+    }
+  }
+  get pos(){
+    return this._pos;
+  }
+
+  destroy(){
+    this.hints.el.removeChild(this.el)
   }
 }
