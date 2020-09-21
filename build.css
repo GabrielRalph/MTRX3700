@@ -49,6 +49,17 @@
   padding-right: 5px;
 }
 
+/* Bit index title*/
+.register > div h4{
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: hsl(var(--theme), 100%, 30%);
+  font-size: 1em;
+  width: calc(3em + 2*var(--padding));
+  margin: 0;
+}
+
 /* Bit information block*/
 .register div > div{
   float: left;

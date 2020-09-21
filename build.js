@@ -256,6 +256,7 @@ Vue.component('register-bit', {
   template: `
   <div @click = "clickHandler" :class = "{highlight: value.description.length > 0}">
     <h2 v-if = "indice !== null">{{7 - indice}}</h2>
+    <h4>{{value.rw}}</h4>
     <div>
       <h3>{{value.name?value.name:(indice == null?'NAME':'-')}}</h3>
       <h3>{{value.POBO?value.POBO:(indice == null?'PO/BO':'-')}}</h3>
