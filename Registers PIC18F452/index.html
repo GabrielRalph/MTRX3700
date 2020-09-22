@@ -15,7 +15,8 @@
   <body>
     <div id = "register-list">
       <wave-loader :loading = "loading"></wave-loader>
-      <fire-registers @loaded = "loading = false"></fire-registers>
+      <cool-input type = "search" v-model = "search_filter"></cool-input>
+      <fire-registers :filter = "search_filter" @loaded = "loading = false"></fire-registers>
     </div>
     <div id = "hints">
 
@@ -35,9 +36,13 @@
     firebase.initializeApp(firebaseConfig);
     let register_list = new Vue({el: '#register-list',
       data: {
-        loading: true
+        loading: true,
+        search_filter: '',
       },
     })
+
+
+
   </script>
   <style type = "text/css">
   body{
@@ -48,6 +53,22 @@
     text-align: center;
     font-size: 1.4vw;
 
+    --theme: 200;
+    --padding: 1.4em;
+    --spacing: 0.5em;
+    --border: 0.2em;
+  }
+  #register-list input{
+    background: transparent;
+    outline: none;
+    border: var(--border) solid hsl(var(--theme), 100%, 40%);
+    margin-bottom: 1em;
+    border-radius: 1000px;
+    color: white;
+    font-family: 'Roboto Mono';
+    width: calc(20 * var(--border) + 9 * 3em + 9 * 2 * var(--padding));
+    font-size: 1em;
+    padding: var(--spacing);
   }
   </style>
 

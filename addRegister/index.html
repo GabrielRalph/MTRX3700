@@ -56,9 +56,9 @@
           <h3>rw</h3>
           <input v-model = "temp_bit.rw"/>
         </div>
-        <div>
+        <div @dblclick = "parse_description">
           <h3>Description</h3>
-          <texteditor v-model = "temp_bit.description" ></texteditor>
+          <texteditor :value_set = "parse_temp" v-model = "temp_bit.description"></texteditor>
         </div>
       </div>
     </div>
@@ -93,6 +93,7 @@
             POBO: '',
             rw: ''
           },
+          parse_temp: '',
           edit_byte: true,
           hints: new Hints('hints'),
           loading: false,
@@ -180,6 +181,13 @@
               this.removeNthBit(e.i)
             }
           }
+        },
+        parse_description: function(){
+          let digit_list = this.temp_bit.description.replace(/((1|0)+) = /gm, (a,b) => {
+            return `<b>${b}: </b>`
+          })
+          // let bold = digit_list.replace(/>(.+): /g, (a) => {return `<b>${a}</b>`})
+          this.parse_temp = digit_list;
         }
       }
     })
@@ -194,7 +202,10 @@
       font-weight: 335;
       text-align: center;
       font-size: 1.4vw;
-      
+      --theme: 200;
+      --padding: 1.4em;
+      --spacing: 0.5em;
+      --border: 0.2em;
     }
 
     .btn{

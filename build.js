@@ -141,13 +141,13 @@ class RTEditor{
     return this.oDoc.innerHTML;
   }
   set value(val){
-    if (!this.isFocus){
+    // if (!this.isFocus){
       this.oDoc.innerHTML = val;
-    }
+    // }
   }
 }
 Vue.component('texteditor', {
-  props: ['value'],
+  props: ['value', 'value_set'],
   template: `<div ref = "main_el" class = "editor-box"></div>`,
   data: function(){
     return {
@@ -160,7 +160,13 @@ Vue.component('texteditor', {
     this.editor.onchange = () => {
       this.$emit('input', this.editor.value);
     }
-    this.editor.innerHTML = this.value;
+    this.editor.value = this.value;
+  },
+  watch: {
+    value_set: function(newVal, oldVal){
+      console.log(newVal);
+      this.editor.value = newVal;
+    }
   }
 })
 
@@ -169,9 +175,15 @@ Vue.component('texteditor', {
 //Gets registers from a firebase realtime database with the ref = /registers
 Vue.component('fire-registers', {
   template: `<div><register v-if = "registers.length > 0" v-for = "reg in registers" :value = "reg" :key = "reg.name + 'block'" @click = "showHints"></register></div>`,
+  props: {
+    filter: {
+      type: String,
+      default: ''
+    }
+  },
   data: function(){
     return {
-      registers: [],
+      registers_list: [],
       hints: new Hints('hints'),
       click_count: 0,
       last_click: null,
@@ -208,8 +220,96 @@ Vue.component('fire-registers', {
       }
       this.hints.show = {body: e.description, head: e.name}
     }
+  },
+  computed: {
+    registers: function(){
+
+      if (this.filter.length > 0){
+        let filter = new SmartFilter(this.filter)
+        let fd_obj = {};
+
+        this.registers_list.forEach((register) => {
+          let frq = filter.appears_in_register(register);
+          if (frq > 0){
+            while( frq in fd_obj){frq ++}
+            fd_obj[frq] = register
+          }
+        });
+        let res = [];
+        for (var key in fd_obj){
+          res.unshift(fd_obj[key])
+        }
+        return res
+      }else{
+        return this.registers_list;
+      }
+    }
   }
 })
+
+class SmartFilter{
+  constructor(filter){
+    this.filter = filter;
+    this.scale = 10;
+  }
+  set filter(val){
+    if (typeof val === 'string' && val.length > 0){
+      this._filter = val.toLowerCase()
+    }else{
+      this._filter = ''
+      throw `Invalid filter`
+    }
+  }
+  get filter(){
+    return this._filter
+  }
+
+  _scale_rank (x){
+    if (typeof x == 'number'){
+      return Math.pow(this.scale, x)
+    }else{
+      return 1
+    }
+  }
+
+  appears(s, scaler = 0){
+    if (typeof s !== 'string' || s.length == 0){return 0}
+
+    scaler = typeof scaler !== 'number' ? 0 : scaler;
+
+    s = s.toLowerCase();
+
+    // See if the filter appears in the given string as is and scale it by 10 if it does;
+    let res = this._frequency(this.filter, s) * this._scale_rank(1 + scaler);
+    //Split filter up and check individual elements
+    let f = this.filter.replace(',', '').split(' ');
+    f.forEach((subf) => {
+      if (subf.length && subf.length > 2){
+        res += this._frequency(subf, s) * this._scale_rank(scaler);
+      }
+    });
+  return res
+  }
+
+  appears_in_register(reg){
+    let res = 0;
+    res += this.appears(reg.name + reg.description, 1);
+    reg.bits.forEach((bit) => {
+      res += this.appears(bit.name + bit.description);
+    });
+    return res
+  }
+
+  _frequency(f, s){
+    if (typeof f == 'string' && typeof s == 'string' && s.length > 0 && f.length > 0){
+      let re = new RegExp(f, 'g');
+      return (s.match(re) || []).length
+    }else{
+      return 0
+    }
+  }
+}
+
 /*
 Register takes prop
 value = {
@@ -235,7 +335,6 @@ Vue.component('register', {
   </div>`,
   data: function(){
     return {
-      xbits: [0, 3, 6, 9]
     }
   },
   methods: {
@@ -343,7 +442,6 @@ class Hints{
   constructor(id){
     this.el = document.getElementById(id);
     this.hints = [];
-
     this.el.ondblclick = () => {
       this.show = false;
     }
@@ -351,11 +449,13 @@ class Hints{
   set show(hint){
     let i = 0;
     if (typeof hint == 'object' && 'head' in hint && 'body' in hint && typeof hint.head == 'string' && typeof hint.body == 'string' && hint.body.length > 0){
-      let hint_a = new Hint(this);
-      this.hints.push(hint_a);
-      hint_a.content = hint;
-      hint_a.smoothShow();
-      i = 1;
+      if (!(this.hints.length > 0 && this.hints[this.hints.length - 1].content.body == hint.body)){
+        let hint_a = new Hint(this);
+        this.hints.push(hint_a);
+        hint_a.content = hint;
+        hint_a.smoothShow();
+        i = 1;
+      }
     }
 
     while (this.hints.length > i){
@@ -462,3 +562,50 @@ class Hint{
     this.hints.el.removeChild(this.el)
   }
 }
+
+// cool_inputs -----------------------------------------------------------------------------
+Vue.component('cool-input', {
+  template: `
+
+  <div style = "position: relative; display: inline">
+    <svg v-if = "type == 'search'" :stroke = "text_color" :style = "'cursor: pointer; transform: translate(-50%, -50%); position: absolute; top: 50%; left: '+icon_offset+'; fill: none; width: 1em; height: 1em'" viewBox = "0 0 10 10">
+      <path d = "M5.62,5.62L9,9" stroke-linecap = "round"></path>
+      <ellipse cx = "3.5" cy = "3.5" rx = "3" ry = "3"></ellipse>
+    </svg>
+    <svg @click = "clear" :stroke = "text_color" :style = "'cursor: pointer; transform: translate(50%, -50%); position: absolute; top: 50%; right: '+icon_offset+'; fill: none; width: 1em; height: 1em'" viewBox = "0 0 10 10">
+      <path d = "M2,2L8,8M2,8L8,2" stroke-linecap = "round"></path>
+    </svg>
+    <input :style = "'padding-left: calc('+icon_offset+' * 1.5);padding-right: calc('+icon_offset+' * 1.5)'" ref = "input_el" :value = "value" @input = "on_input" :type = "input_type"/>
+  <div />
+  `,
+
+  props: ['value', 'type'], // type: number, text, search
+  data: function(){
+    return {
+      text_color: `white`,
+      icon_offset: '0.8em',
+    }
+  },
+  methods: {
+    on_input: function (e){
+      this.$emit('input', e.target.value);
+    },
+    clear: function(){
+      this.$emit('input', '')
+    }
+  },
+  computed: {
+    input_type: function(){
+      return this.type == 'search' ? 'text' : this.type;
+    }
+  },
+  mounted(){
+    let container = this.$refs.input_el;
+    window.onresize = () => {
+      this.icon_offset = container.clientHeight/2 + 'px';
+    }
+    setTimeout(() => {
+      window.onresize()
+    }, 1)
+  }
+})

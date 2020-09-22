@@ -1,10 +1,10 @@
 /* REGISTER STYLE SHEET */
 /* Register block */
 .register{
-  --theme: 200;
+  /* --theme: 200;
   --padding: 1.4em;
   --spacing: 0.5em;
-  --border: 0.2em;
+  --border: 0.2em; */
 
   --r: calc(3em + 2*var(--padding) + 2*var(--border) + var(--spacing));
 
