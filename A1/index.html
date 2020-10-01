@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Assignment 1</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link type="text/css" href="https://fonts.hub.guru/fonts.css" />
+  <script src= "https://www.gstatic.com/firebasejs/7.14.4/firebase.js"></script>
+  <script src = "https://www.svg.plus/load.js"></script>
+  <script src = "./build.js"></script>
+  <script src = "../Assembly Lookup/keys.js"></script>
+  <body>
+    <h1>Exercise 4</h1>
+    <pre id = "code">
+
+    </pre>
+    <svg id = "wave-forms" viewBox = "0 0 30 9">
+      <script type="text/javascript">
+      window.onload = () => {
+        let svg = new SvgElement('wave-forms');
+        let states = new States(svg);
+        states.addChannel('RCLK')
+        states.addChannel('SRCLK')
+        states.addChannel('LOAD')
+        states.addChannel('CLK')
+
+
+        states.same();
+        states.low('LOAD');
+        states.high('LOAD');
+        for (var i = 0; i < 8; i++){
+          states.low('SRCLK');
+          states.high('SRCLK');
+
+          states.low('CLK')
+          states.high('CLK')
+        }
+        states.low('RCLK')
+        states.high('RCLK')
+      }
+      </script>
+    </svg>
+  </body>
+
+  <script type="text/javascript">
+    const firebaseConfig = {
+      apiKey: "AIzaSyDniS0prRjEmOyKbMd4jequo9gkwe2otKI",
+      authDomain: "fashion-galetora.firebaseapp.com",
+      databaseURL: "https://fashion-galetora.firebaseio.com",
+      projectId: "fashion-galetora",
+      storageBucket: "fashion-galetora.appspot.com",
+      messagingSenderId: "469438762797",
+      appId: "1:469438762797:web:759f543ce82183b9f04da4",
+      measurementId: "G-Q7DJ37H3D0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    class Code{
+      constructor(id, src){
+        this.el = document.getElementById(id);
+        let iframe = document.createElement('iframe');
+        iframe.src = src;
+        this.el.appendChild(iframe);
+        iframe.onload = () => {
+          this.content = iframe.contentDocument || iframe.contentWindow.document;
+          this.content = this.content.body.firstChild;
+
+        }
+        this.registers = []
+        firebase.database().ref('/registers').once('value', (e) => {
+          for (var name in e.val()){
+            this.registers.push(name);
+          }
+          console.log(this.registers);
+          let html = this.content.innerHTML;
+          this.el.innerHTML = this.parse(html);
+
+        })
+
+        this.defines = {}
+        this.keywords = [
+          "auto",
+          "break",
+          "case",
+          "char",
+          "const",
+          "continue",
+          "default",
+          "do",
+          "double",
+          "else",
+          "enum",
+          "extern",
+          "float",
+          "for",
+          "goto",
+          "if",
+          "inline",
+          "int",
+          "long",
+          "register",
+          "restrict",
+          "return",
+          "short",
+          "signed",
+          "sizeof",
+          "static",
+          "struct",
+          "switch",
+          "typedef",
+          "union",
+          "unsigned",
+          "void",
+          "volatile",
+          "while",
+          "_Alignas",
+          "_Alignof",
+          "_Atomic",
+          "_Bool",
+          "_Complex",
+          "_Generic",
+          "_Imaginary",
+          "_Noreturn",
+          "_Static_assert",
+          "_Thread_local"
+        ]
+        this.assembly = {}
+        for (var cat in ITNS){
+          this.assembly = Object.assign(ITNS[cat], this.assembly);
+        }
+      }
+
+      parse(code){
+        let res = code;
+        res = res.replace(/\#define (([a-z]|[A-Z]|[0-9])+) (\d*)/g, (a, b, c, d) => {
+          this.defines[b] = d;
+          return `<b class = "define">#define</b> ${b} <b class = "num">${d}</b>`
+        });
+        for (var macro in this.defines){
+          let reg = new RegExp(`( |[(])(${macro})`, 'g')
+          res = res.replace(reg, (a, b, c) => {
+            return `${b}<b class = "macro">${c}</b>`
+          })
+        }
+        for (var assem in this.assembly){
+          assem = assem.replace('*', '[*]').replace('+', '[+]');
+          let reg = new RegExp(`( |[(])(${assem})( |[)]|\n)`, 'g')
+          res = res.replace(reg, (a, b, c, d) => {
+            return `${b}<b class = "assembly">${c}</b>${d}`
+          })
+        }
+        for (var i in this.keywords){
+          let reg = new RegExp(`( |[(]|\n)(${this.keywords[i]})`, 'g')
+          res = res.replace(reg, (a, b, c) => {
+            return `${b}<b class = "keyword">${c}</b>`
+          })
+        }
+        for (var i in this.registers){
+          let reg = new RegExp(`( |[(]|\n)(${this.registers[i].replace('x', '[0-9]')})( |[)]|\n)`, 'g')
+          res = res.replace(reg, (a, b, c, d) => {
+            return `${b}<b class = "macro">${c}</b>${d}`
+          })
+        }
+        res = res.replace(/\/\/.*/g, (a) => {
+          let newa = a.replace(/<b.*>/g, '').replace('</b>', '')
+          console.log(newa);
+          return `<b class = "comment">${newa}</b>`
+        })
+        res = res.replace(/^ /mg, '\t').replace(/\n/g, '<br />');
+        return res
+      }
+    }
+    let code = new Code('code', './E4.c')
+  </script>
+
+  <style>
+  body{
+    font-family: 'Guru Serif';
+    max-width: 210mm;
+    margin: auto;
+  }
+  #wave-forms{
+    height: 10em;
+  }
+
+  .comment{
+    color: #5fb572;
+  }
+  .define{
+    color: #0c6dff;
+  }
+  .macro{
+    color: #4c5db5;
+  }
+  .num{
+    color: grey;
+  }
+  .keyword{
+    color:#97a004;
+  }
+  .assembly{
+    color: tomato;
+  }
+  </style>
+
+</html>
