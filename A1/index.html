@@ -11,6 +11,14 @@
   <script src = "./build.js"></script>
   <script src = "../Assembly Lookup/keys.js"></script>
   <body>
+    <h1>Exercise 1</h1>
+    <pre id = "code1">
+
+    </pre>
+    <h1>Exercise 2</h1>
+    <pre id = "code2">
+
+    </pre>
     <h1>Exercise 3</h1>
     <pre id = "code3">
 
@@ -141,22 +149,22 @@
           return `<b class = "define">#define</b> ${b} <b class = "num">${d}</b>`
         });
         for (var macro in this.defines){
-          let reg = new RegExp(`( |[(])(${macro})`, 'g')
-          res = res.replace(reg, (a, b, c) => {
-            return `${b}<b class = "macro">${c}</b>`
+          let reg = new RegExp(`( |[(])(${macro})( |[)]|\n)`, 'g')
+          res = res.replace(reg, (a, b, c, d) => {
+            return `${b}<b class = "macro">${c}</b>${d}`
           })
         }
         for (var assem in this.assembly){
           assem = assem.replace('*', '[*]').replace('+', '[+]');
-          let reg = new RegExp(`( |[(])(${assem})( |[)]|\n)`, 'g')
+          let reg = new RegExp(`( |[(])(${assem}|${assem.toLowerCase()})( |[)]|\n)`, 'g')
           res = res.replace(reg, (a, b, c, d) => {
             return `${b}<b class = "assembly">${c}</b>${d}`
           })
         }
         for (var i in this.keywords){
-          let reg = new RegExp(`( |[(]|\n)(${this.keywords[i]})`, 'g')
-          res = res.replace(reg, (a, b, c) => {
-            return `${b}<b class = "keyword">${c}</b>`
+          let reg = new RegExp(`( |[(]|\n)(${this.keywords[i]})( |[)]|\n)`, 'g')
+          res = res.replace(reg, (a, b, c, d) => {
+            return `${b}<b class = "keyword">${c}</b>${d}`
           })
         }
         for (var i in this.registers){
@@ -176,6 +184,8 @@
     }
     let code = new Code('code', './E4.c')
     let code3 = new Code('code3', './E3.c')
+    let code2 = new Code('code2', './E2.asm')
+    let code1 = new Code('code1', './E1.asm')
   </script>
 
   <style>
