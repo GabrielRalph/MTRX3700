@@ -229,6 +229,7 @@ Vue.component('fire-registers', {
         let fd_obj = {};
 
         this.registers_list.forEach((register) => {
+
           let frq = filter.appears_in_register(register);
           if (frq > 0){
             while( frq in fd_obj){frq ++}
@@ -250,7 +251,7 @@ Vue.component('fire-registers', {
 class SmartFilter{
   constructor(filter){
     this.filter = filter;
-    this.scale = 10;
+    this.scale = 30;
   }
   set filter(val){
     if (typeof val === 'string' && val.length > 0){
@@ -293,9 +294,11 @@ class SmartFilter{
 
   appears_in_register(reg){
     let res = 0;
-    res += this.appears(reg.name + reg.description, 1);
+    res += this.appears(reg.name, 3);
+    res += this.appears(reg.description, 2);
     reg.bits.forEach((bit) => {
-      res += this.appears(bit.name + bit.description);
+      res += this.appears(bit.name, 1);
+      res += this.appears(bit.description);
     });
     return res
   }
@@ -609,3 +612,148 @@ Vue.component('cool-input', {
     }, 1)
   }
 })
+
+// Number formater ------------------------------------------------------------------------
+class DecBinHex{
+  constructor(el = null){
+    if (el != null) this.addTool(el)
+
+    this.bin_regex = new RegExp('(0b|B)(0|1)*');
+    this.hex_regex = new RegExp('(0x|X)([0-9]|[A-F]|[a-f])*');
+
+    this.p = 8;
+
+    this.v_tag = 'h3'
+  }
+
+  set dec(dec){
+    if (typeof dec === 'number' && Math.round(dec) == dec){
+      this._dec = dec;
+    }else if (typeof dec === 'string' && `${parseInt(dec)}` === dec){
+      this.dec = parseInt(dec);
+    }else{
+      throw 'Error setting dec:\n dec must be set to an integer as a number or string'
+    }
+  }
+  get dec(){
+    return this._dec ? this._dec : 0;
+  }
+
+  set bin(val){
+    if (typeof val !== 'string' || val.length == 0){
+      throw 'Error setting bin:\nbin must be set to a valid string'
+      return
+    }
+
+    let bin = (val.match(this.bin_regex) || []);
+    if (bin.length == 0 || bin[0] != val){
+      throw `Error setting bin:\n${val} is an invalid bin string format`
+      return
+    }
+
+    bin = bin[0].replace('0b', '').replace('B', '')
+    let res = 0;
+    for (var i = 0; i < bin.length; i++){
+      res += parseInt(bin[bin.length - 1 - i]) << i;
+    }
+    this.dec = res;
+  }
+  get bin(){
+    let res = '';
+    let i = 0;
+    let dec = this.dec;
+    while((dec != 0 && dec != -1) || (i % this.p != 0)){
+      res = `${dec & 1}` + res;
+      dec = dec >> 1;
+      i++;
+    }
+    return `0b${res}`
+  }
+
+  set hex(val){
+    if (typeof val !== 'string' || val.length == 0){
+      throw 'Error setting hex:\nhex must be set to a valid string'
+      return
+    }
+    val = val.toLowerCase()
+
+    let hex = (val.match(this.hex_regex) || []);
+    if (hex.length == 0 || hex[0] != val){
+      throw `Error setting hex:\n${val} is an invalid hex string format`
+      return
+    }
+    hex = hex[0].replace('0x', '').replace('X', '')
+    let res = 0;
+    let key = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'a': 10, 'b': 11, 'c': 12, 'd': 13, 'e': 14, 'f': 15}
+    for (var i = 0; i < hex.length; i++){
+      res += key[hex[hex.length - 1 - i]] << i*4;
+    }
+    this.dec = res;
+  }
+  get hex(){
+    let res = ''
+    let i = 0;
+    let dec = this.dec;
+    while ((dec != 0 && dec != -1) || (i % (this.p/4) != 0)){
+      let hex = dec & 15;
+      res = (hex < 10 ? `${hex}` : String.fromCharCode(87 + hex)) + res;
+      dec = dec >> 4;
+      i++;
+    }
+    return `0x${res}`
+  }
+
+  get values(){
+    return {dec: this.dec, bin: this.bin, hex: this.hex}
+  }
+  get value_html(){
+    return `<${this.v_tag}>Dec: ${this.dec}</${this.v_tag}>
+            <${this.v_tag}>Bin: ${this.bin}</${this.v_tag}>
+            <${this.v_tag}>Hex: ${this.hex}</${this.v_tag}>`
+  }
+  set value(val){
+    try {
+      this.hex = val;
+    } catch(e){
+      try {
+        this.bin = val;
+      } catch(e){
+        try {
+          this.dec = val;
+        }catch (e){
+          throw `Error setting value:\n${val} is an invalid value`
+        }
+      }
+    }
+  }
+
+  addTool(id){
+    this.el = document.getElementById(id);
+
+    this.input = document.createElement('INPUT');
+    this.el.appendChild(this.input);
+    this.input.setAttribute('spellcheck', false);
+
+    this.result_box = document.createElement('DIV');
+    this.el.appendChild(this.result_box);
+
+    this.input.oninput = () => {
+      if (this.input.value.length == 0){
+        this.result_box.innerHTML = '';
+        this.input.style.borderColor = '#f6ffab';
+        this.result_box.style.borderColor = '#f6ffab';
+        return
+      }
+      try {
+        this.value = this.input.value;
+      } catch(e){
+        this.input.style.borderColor = '#e83b3b';
+        this.result_box.style.borderColor = '#e83b3b';
+        return
+      }
+      this.input.style.borderColor = '#57ca57';
+      this.result_box.style.borderColor = '#57ca57';
+      this.result_box.innerHTML = this.value_html;
+    }
+  }
+}

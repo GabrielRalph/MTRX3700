@@ -171,6 +171,9 @@
             bits: this.bits
           }).then(() => {
             this.loading = false;
+          }).catch((e) => {
+            alert(`Register ${this.name} all ready exists.`);
+            this.loading = false;
           })
         },
         registerClickHandler: function(e){

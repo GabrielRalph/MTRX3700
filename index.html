@@ -6,11 +6,24 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,271;0,335;1,382;1,409&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src = "./build.js" type="text/javascript"></script>
   <body>
     <h1 onclick = "window.location.assign('/Assembly Lookup')">Assembly Lookup</h1>
     <h1 onclick = "window.location.assign('/Registers PIC18F452')">Registers PIC18F452</h1>
-  </body>
+    <!-- <div id = "bin-con">
 
+    </div> -->
+    <div class = "footer">
+      <h3>Designed by Gabriel Ralph</h3>
+    </div>
+  </body>
+  <script>
+  let bhd = new DecBinHex('bin-con')
+
+  console.log(bhd.values);
+
+  </script>
   <style type = "text/css">
   body{
     font-family: 'Roboto Mono';
@@ -23,7 +36,41 @@
   h1{
     cursor: pointer;
   }
-
+  #bin-con{
+    display: inline-block;
+  }
+  #bin-con input{
+    font-size: 1em;
+    outline: none;
+    border-style: solid;
+    background: transparent;
+    border-radius: 2em 2em 0 0;
+    border-width: 0.2em;
+    padding: 0.25em 1.5em;
+    color: white;
+    display: inline-block;
+    width: calc(100% - 3.4em);
+  }
+  #bin-con div{
+    border-radius: 0 0 2em 2em;
+    border-width: 0.2em;
+    text-align: left;
+    border-style: solid;
+    border-color: green;
+    border-top: none;
+    padding: 0.25em 1.5em;
+    min-height: 1em;
+  }
+  #bin-con h3{
+    font-size: 1em;
+    margin: 0;
+  }
+  .footer{
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+  }
   </style>
 
 </html>
