@@ -1,3 +1,14 @@
 *.pdf
 *.exe
 /T0/Tute0.X
+*.SLDPRT
+*.igs
+*.step
+*.STL
+*.DXF
+*.SCH
+*.JPG
+*.PNG
+*.ZIP
+*.BRD
+*.SLDASM
