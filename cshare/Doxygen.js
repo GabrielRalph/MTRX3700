@@ -101,7 +101,7 @@ class Doxygen extends SvgPlus{
   }
 
   createDefines(){
-    if (this.defines.length == 0) return;
+    if (Object.keys(this.defines).length == 0) return;
 
     if (!this.defines_doxyList) {
       this.defines_doxyList = new DoxyList('TABLE');
@@ -123,7 +123,7 @@ class Doxygen extends SvgPlus{
   }
 
   createGlobals(){
-    if (this.globals.length == 0) return;
+    if (Object.keys(this.globals).length == 0) return;
 
     if (!this.globals_doxyList) {
       this.globals_doxyList = new DoxyList('TABLE');
