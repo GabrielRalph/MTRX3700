@@ -101,6 +101,8 @@ class Doxygen extends SvgPlus{
   }
 
   createDefines(){
+    if (this.defines.length == 0) return;
+
     if (!this.defines_doxyList) {
       this.defines_doxyList = new DoxyList('TABLE');
       this.doxydoc.appendChild(this.defines_doxyList);
@@ -121,6 +123,8 @@ class Doxygen extends SvgPlus{
   }
 
   createGlobals(){
+    if (this.globals.length == 0) return;
+
     if (!this.globals_doxyList) {
       this.globals_doxyList = new DoxyList('TABLE');
       this.doxydoc.appendChild(this.globals_doxyList);
@@ -141,6 +145,10 @@ class Doxygen extends SvgPlus{
   }
 
   createDoxyList(name){
+    title = name + 's';
+    let functions = this[title];
+    if (Object.keys(functions).length == 0) return;
+
     if (!this[name + 'DoxyList']) {
       this[name + 'DoxyList'] = new DoxyList('TABLE');
       this.doxydoc.appendChild(this[name + 'DoxyList']);
@@ -150,8 +158,7 @@ class Doxygen extends SvgPlus{
     doxyList.class = name+'-box';
 
 
-    title = name + 's';
-    let functions = this[name + 's'];
+
     for (var title in functions){
 
       var doxyPre = new DoxyPre('pre');
@@ -260,7 +267,7 @@ class Doxygen extends SvgPlus{
       let type = match[1];
       let name = match[2];
 
-      if (!this.keyWords.includes(name)){
+      if (!(this.keyWords.includes(name)||this.keyWords.includes(type))){
         let params = match[3].split(', ');
 
         var i = match.index + match[0].length;
