@@ -27,12 +27,12 @@ class DoxyPre extends Highlights{
     this.highlightKeywords(Object.keys(this.doxygen.globals), 'globals');
     this.highlightKeywords(Object.keys(this.doxygen.defines), 'defines');
     this.highlightKeywords(['#define'], 'defines-title');
+    if (this.fbody && this.fbody.comments && this.fbody.comments.params) this.highlightKeywords(Object.keys(this.fbody.comments.params), 'param')
 
     this.highlightRegex(/(\.|->)(\w+)\W/g, 2, 'field');
     this.highlightRegex(/\W(\w+)(\.|->)\w/g, 1, 'before-field');
     this.highlightRegex(/\W(\w+)[(][^)]*[)];/g, 1, 'function-use');
     this.highlightRegex(/^\s*\w*[*\s]*(\w*)[(]/gm, 1, "function-names");
-    if (this.fbody && this.fbody.comments && this.fbody.comments.params) this.highlightKeywords(Object.keys(this.fbody.comments.params), 'param')
   }
 
   clickHandler(){
