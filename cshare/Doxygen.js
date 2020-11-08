@@ -78,6 +78,8 @@ class Doxygen extends SvgPlus{
   }
 
   make(){
+    this.clear();
+    
     try{
       this.find();
     }catch(e){
