@@ -57,19 +57,17 @@ class Loader extends SvgPlus{
     })
   }
 
-  async loadAsyncFunction(func, params = null){
+  async loadAsyncFunction(func, time = 2000){
     if (!(func instanceof Function)) return;
 
     let rn = Date.now();
 
     this.show = true;
     let res;
-    if (params == null){
-      res = await func();
-    }else{
-      res = await func.apply(params);
-    }
-    await this.delay(2000 + rn - Date.now());
+
+    res = await func();
+
+    await this.delay(time + rn - Date.now());
     this.show = false;
     return res;
   }
