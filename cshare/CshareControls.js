@@ -13,6 +13,7 @@ class Controls extends SvgPlus{
     this.room = new Inpt('INPUT');
     this.connect = new Btn('svg');
     this.add = new Btn('svg');
+    this.header = new SvgPlus('H1');
 
     this.connect.onclick = () => {this.connectToRoom()}
     this.add.onclick = () => {this.addFile()}
@@ -27,6 +28,7 @@ class Controls extends SvgPlus{
   set connected(val){
     if (val){
       this.innerHTML = '';
+      this.appendChild(this.header);
       this.appendChild(this.add);
       document.body.appendChild(this.doxyFire);
     }else{
@@ -37,12 +39,14 @@ class Controls extends SvgPlus{
 
   async connectToRoom(){
     this.doxyFire.roomName = this.room.value;
+
+    this.header.innerHTML = this.room.value;
+
     this.connected = await this.doxyFire.watchFiles();
     if (!this.connected){
       this.room.value = '';
       this.room.props = {placeholder: 'Invalid room :('}
     }
-
   }
 
   addFile(){
@@ -68,7 +72,7 @@ class Btn extends SvgPlus{
   build(){
     if (!(this instanceof SVGSVGElement)) throw '' + new PlusError('Controls must be an SVG element');
     this.props = {
-      style: {background: 'green'},
+      style: {background: 'white'},
       viewBox: '0 0 100 100',
       class: 'btn'
     }
