@@ -6,62 +6,23 @@
     <script src= "https://www.gstatic.com/firebasejs/7.14.4/firebase.js"></script>
     <script src = "https://www.svg.plus/2.js"></script>
     <script src = "https://www.svg.plus/vector.js"></script>
+    <script src = "./Loader.js"></script>
     <script src = "./Highlights.js"></script>
     <script src = "./Doxygen.js"></script>
     <script src = "./DoxyList.js"></script>
     <script src = "./DoxyPre.js"></script>
     <script src = "./DoxyFire.js"></script>
-
-    <!-- <script src = "./doxygen.js"></script> -->
-    </script>
-
-
+    <script src = "./CshareControls.js"></script>
   </head>
   <body>
-    <div id = "add">
-      +
-    </div>
 
   </body>
-  <script>
-    var doxyFire = new DoxyFire('div');
-    var doxygen = new Doxygen('div');
+<script>
 
-    class Add extends SvgPlus{
-      onclick(){
-        let input = new SvgPlus('INPUT');
-        document.body.appendChild(input)
-        input.props = {type: 'file'};
+  var cc = new Controls('div');
+  document.body.appendChild(cc);
 
-        input.oninput = (e) => {
-          handle(e)
-        }
-
-        let handle = (e) => {
-          let file = event.target.files[0];
-          doxyFire.addFiles(event.target.files);
-        }
-        input.click();
-      }
-    }
-    let add = new Add('add');
-
-    document.body.appendChild(doxyFire);
-
-    fetch('./Menu.c')
-      .then(response => response.text())
-      .then((data) => {
-        doxygen.code = data;
-        // doxyFire.addFile(data, 'Menu.c');
-        // var defines = doxygen.defines;
-        // var functions = doxygen.functions;
-        // console.log(functions);
-        // for (func in functions){
-        //   document.body.innerHTML += `<h1>${func}</h1>`
-        // }
-      })
-
-  </script>
+</script>
 <style>
 
 body{
@@ -75,21 +36,61 @@ body{
   padding: 0;
 }
 
-#add{
-  font-family: 'Anonymous Pro', monospace;
-  font-size: 30px;
-  line-height: 35px;
-  padding-bottom: 5px;
-  padding-left: 2px;
+
+#cc-controls{
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  height: 35px;
+}
+#cc-controls input{
+  height: 100%;
+  padding: 0 10px;
+  line-height: 100%;
   border-radius: 25px;
-  width: 38px;
+  outline: none;
+  background: black;
+  font-size: 25px;
+}
+
+.btn{
+  border-radius: 20px;
+  width: 40px;
+  float: right;
+  margin-left: 10px;
+}
+
+#cc-controls input, #cc-controls div{
+  border-radius: 25px;
+  color: white;
+  font-family: 'Anonymous Pro', monospace;
   border: 2px solid white;
+
+}
+
+#room div{
+  height: 36px;
+  padding: 0 10px;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 36px;
+  display: inline;
+}
+
+#add{
+  font-size: 30px;
+  padding-bottom: 5px;
+  line-height: 35px;
+  padding-left: 2px;
+  width: 38px;
   text-align: center;
   position: fixed;
   top: 10px;
   right: 10px;
+  cursor: pointer;
 }
-input{
+input.hidden{
   display: none;
 }
 
