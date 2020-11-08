@@ -3,36 +3,45 @@ class Doxygen extends SvgPlus{
   build(){
     this.props = {class: 'doxygen'}
     this._code = "";
-    this.icons = [];
     this.types = ["char", "const", "double", "enum", "float", "int", "long", "short", "signed", "static", "struct", "typedef", "union", "unsigned", "void", "volatile"];
     this.keyWords = ["auto", "break", "case", "continue", "default", "do", "else", "extern", "for", "goto", "if", "register", "return", "sizeof", "switch", "while"];
+    this.doxydoc = new SvgPlus('div');
+    this.clear();
+  }
+
+  clear(){
+    this.icons = [];
     this.globals = {};
     this.unions = {};
     this.structs = {};
     this.typedefs = [];
     this.functions = {};
     this.defines = {};
+    if (this.display) this.display = false;
     this._display = false;
-    this.doxydoc = new SvgPlus('DIV');
-    this.created = false;
+    this.doxydoc.innerHTML = '';
   }
 
   set header(title){
     if (typeof title !== 'string') return;
-    this._header = title;
-    let header = new SvgPlus('H1');
-    header.onclick = () => {this.display = !this.display}
-    header.innerHTML = title;
-    this.prepend(header);
+    if (!this._header) {
+      this._header = new SvgPlus('H1');
+      this.prepend(this._header);
+      this._header.onclick = () => {this.display = !this.display}
+    }
+
+    this._header.innerHTML = title;
   }
 
   get header(){
-    return this._header;
+    if (!(this._header instanceof HTMLH1Element)) return null;
+    return this._header.innerHTML;
   }
 
 
   set display(val){
     if (val){
+
       if (typeof this.code !== 'string') return;
       this.props = {style: {
         position: 'fixed',
@@ -42,6 +51,7 @@ class Doxygen extends SvgPlus{
         right: '0',
         bottom: '0',
       }}
+      this.make();
       this.appendChild(this.doxydoc);
       this._display = true;
     }else{
@@ -58,17 +68,16 @@ class Doxygen extends SvgPlus{
 
   set code(val){
     if (typeof val !== 'string') return;
-    if (this.created == true) return;
     this._code = val;
-    this.makeIcons();
-    this.created = true;
+    this.clear();
+
   }
 
   get code(){
     return this._code;
   }
 
-  makeIcons(){
+  make(){
     try{
       this.find();
     }catch(e){
@@ -85,32 +94,31 @@ class Doxygen extends SvgPlus{
   }
 
   createCode(){
-    if (!this.code_doxyList) {
-      this.code_doxyList = new DoxyList('TABLE');
-      this.doxydoc.appendChild(this.code_doxyList);
-      this.code_doxyList.header = 'full code';
-      this.code_doxyList.class = 'code-box';
-    }
+    let code_doxyList = new DoxyList('TABLE');
+    this.doxydoc.appendChild(code_doxyList);
+
+    code_doxyList.header = 'full code';
+    code_doxyList.class = 'code-box';
+
     var doxyPre = new DoxyPre('PRE');
     doxyPre.doxygen = this;
 
     doxyPre.fhead = '';
     doxyPre.fbody = {body: this.code};
 
-    this.code_doxyList.push(doxyPre);
+    code_doxyList.push(doxyPre);
   }
 
   createDefines(){
     if (Object.keys(this.defines).length == 0) return;
 
-    if (!this.defines_doxyList) {
-      this.defines_doxyList = new DoxyList('TABLE');
-      this.doxydoc.appendChild(this.defines_doxyList);
-      this.defines_doxyList.header = 'defined macros';
-      this.defines_doxyList.class = 'defines-box';
-    }
+    let defines_doxyList = new DoxyList('TABLE');
+    this.doxydoc.appendChild(defines_doxyList);
+    defines_doxyList.header = 'defined macros';
+    defines_doxyList.class = 'defines-box';
 
-    var doxyPre = new DoxyPre('PRE');
+
+    let doxyPre = new DoxyPre('PRE');
     doxyPre.doxygen = this;
 
     let defines = '';
@@ -119,18 +127,17 @@ class Doxygen extends SvgPlus{
     }
 
     doxyPre.fhead = defines;
-    this.defines_doxyList.appendChild(doxyPre);
+    defines_doxyList.appendChild(doxyPre);
   }
 
   createGlobals(){
     if (Object.keys(this.globals).length == 0) return;
 
-    if (!this.globals_doxyList) {
-      this.globals_doxyList = new DoxyList('TABLE');
-      this.doxydoc.appendChild(this.globals_doxyList);
-      this.globals_doxyList.header = 'global variables';
-      this.globals_doxyList.class = 'globals-box';
-    }
+    let globals_doxyList = new DoxyList('TABLE');
+    this.doxydoc.appendChild(globals_doxyList);
+
+    globals_doxyList.header = 'global variables';
+    globals_doxyList.class = 'globals-box';
 
     var doxyPre = new DoxyPre('PRE');
     doxyPre.doxygen = this;
@@ -141,7 +148,7 @@ class Doxygen extends SvgPlus{
     }
 
     doxyPre.fhead = globals_string;
-    this.globals_doxyList.appendChild(doxyPre);
+    globals_doxyList.appendChild(doxyPre);
   }
 
   createDoxyList(name){
@@ -149,24 +156,18 @@ class Doxygen extends SvgPlus{
     let functions = this[title];
     if (Object.keys(functions).length == 0) return;
 
-    if (!this[name + 'DoxyList']) {
-      this[name + 'DoxyList'] = new DoxyList('TABLE');
-      this.doxydoc.appendChild(this[name + 'DoxyList']);
-    }
-    let doxyList = this[name + 'DoxyList'];
+    let doxyList = new DoxyList('TABLE');
+    this.doxydoc.appendChild(doxyList);
+
     doxyList.header = name + 's';
     doxyList.class = name+'-box';
 
-
-
     for (var title in functions){
-
       var doxyPre = new DoxyPre('pre');
       doxyPre.doxygen = this;
       doxyPre.fbody = functions[title];
       doxyPre.fhead = title;
       doxyList.push(doxyPre);
-
     }
   }
 
@@ -384,3 +385,7 @@ class Doxygen extends SvgPlus{
     this.defines = defines;
   }
 }
+
+// class DoxygenUnion extends Highlights{
+//
+// }
