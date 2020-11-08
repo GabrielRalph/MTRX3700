@@ -41,8 +41,10 @@ class Controls extends SvgPlus{
     this.doxyFire.roomName = this.room.value;
 
     this.header.innerHTML = this.room.value;
-
-    this.connected = await this.doxyFire.watchFiles();
+    this.loader.loadAsyncFunction(async () => {
+      this.connected = await this.doxyFire.watchFiles();
+      return true;
+    }, 1000)
     if (!this.connected){
       this.room.value = '';
       this.room.props = {placeholder: 'Invalid room :('}
