@@ -79,7 +79,7 @@ class Doxygen extends SvgPlus{
 
   make(){
     this.clear();
-    
+
     try{
       this.find();
     }catch(e){
@@ -177,6 +177,7 @@ class Doxygen extends SvgPlus{
     if (typeof string !== 'string') return null;
     if (i >= string.length) return null;
     var inside = "";
+    console.log(string[i]);
     var open = 1;
     while(open){
       if (string[i] === '{') open++;
@@ -184,7 +185,7 @@ class Doxygen extends SvgPlus{
       inside += string[i];
 
       i++;
-      if (i == string.length) throw '' + new PlusError('No closing bracket ' + inside);
+      if (i == string.length && open) throw '' + new PlusError('No closing bracket ' + inside);
     }
     return inside;
   }
@@ -387,7 +388,3 @@ class Doxygen extends SvgPlus{
     this.defines = defines;
   }
 }
-
-// class DoxygenUnion extends Highlights{
-//
-// }
